@@ -1,0 +1,599 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sticky Jokes</title>
+<meta name="description" content="A stack of dad jokes on sticky notes.">
+
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+<link rel="icon" href="./icons/icon-192.png">
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Sticky Jokes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#B5A48B" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#17140F" media="(prefers-color-scheme: dark)">
+
+<style>
+  :root {
+    --desk: #B5A48B;
+    --desk-deep: #9C8A6F;
+    --chrome-fg: #2F2920;
+    --chrome-muted: #635842;
+    --chrome-line: rgba(47, 41, 32, 0.22);
+    --accent: #C0392B;
+
+    /* one ink for every note colour - a ballpoint doesn't change to match the paper */
+    --ink: #2B2724;
+    --note-shadow: rgba(60, 46, 26, 0.34);
+    --note-dim: 1;
+
+    --hand: "Marker Felt", "Bradley Hand", "Chalkboard SE", "Comic Sans MS", cursive;
+    --ui: ui-sans-serif, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --desk: #17140F;
+      --desk-deep: #0C0A07;
+      --chrome-fg: #E9E0CB;
+      --chrome-muted: #948871;
+      --chrome-line: rgba(233, 224, 203, 0.20);
+      --note-shadow: rgba(0, 0, 0, 0.62);
+      --note-dim: 0.86;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --desk: #17140F;
+    --desk-deep: #0C0A07;
+    --chrome-fg: #E9E0CB;
+    --chrome-muted: #948871;
+    --chrome-line: rgba(233, 224, 203, 0.20);
+    --note-shadow: rgba(0, 0, 0, 0.62);
+    --note-dim: 0.86;
+  }
+
+  :root[data-theme="light"] {
+    --desk: #B5A48B;
+    --desk-deep: #9C8A6F;
+    --chrome-fg: #2F2920;
+    --chrome-muted: #635842;
+    --chrome-line: rgba(47, 41, 32, 0.22);
+    --note-shadow: rgba(60, 46, 26, 0.34);
+    --note-dim: 1;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding:
+      calc(22px + env(safe-area-inset-top, 0px))
+      calc(16px + env(safe-area-inset-right, 0px))
+      calc(18px + env(safe-area-inset-bottom, 0px))
+      calc(16px + env(safe-area-inset-left, 0px));
+    background-color: var(--desk);
+    background-image:
+      radial-gradient(120% 90% at 50% 0%, transparent 40%, var(--desk-deep) 100%),
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/><feColorMatrix type='saturate' values='0'/></filter><rect width='140' height='140' filter='url(%23n)' opacity='0.055'/></svg>");
+    color: var(--chrome-fg);
+    font-family: var(--ui);
+    overflow: hidden;
+    touch-action: pan-y;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ---------- chrome ---------- */
+
+  header, footer {
+    flex: none;
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    width: min(92vw, 420px);
+  }
+
+  header {
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--chrome-line);
+  }
+
+  footer {
+    align-items: center;
+    padding-top: 12px;
+    border-top: 1px solid var(--chrome-line);
+  }
+
+  h1 {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+  }
+
+  .count {
+    margin-left: auto;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    color: var(--chrome-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .hint {
+    margin-left: auto;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--chrome-muted);
+    opacity: 0.8;
+  }
+
+  /* ---------- stage: arrow, stack, arrow ---------- */
+
+  .stage {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+  }
+
+  .stack {
+    position: relative;
+    /* the note is square, so it has to respect the shorter axis too, or a
+       short viewport clips it and pushes the footer off screen */
+    width: min(84vw, 360px, 58vh);
+    aspect-ratio: 1 / 1;
+  }
+
+  .nav {
+    flex: none;
+    width: 46px;
+    height: 46px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    border: 1px solid var(--chrome-line);
+    background: transparent;
+    color: var(--chrome-fg);
+    cursor: pointer;
+    transition: background 140ms ease, border-color 140ms ease, opacity 140ms ease;
+  }
+
+  .nav:hover:not(:disabled) { background: rgba(128, 128, 128, 0.16); border-color: var(--chrome-fg); }
+  .nav:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .nav:disabled { opacity: 0.25; cursor: default; }
+
+  /* Touch devices have the swipe, so the arrows are dead weight there. */
+  @media (hover: none) and (pointer: coarse) {
+    .nav { display: none; }
+  }
+
+  /* ---------- the notes ---------- */
+
+  .note {
+    position: absolute;
+    inset: 0;
+    background: var(--paper);
+    filter: brightness(var(--note-dim));
+    /* square, barely-there corners: a sticky note is cut, not rounded */
+    border-radius: 2px;
+    box-shadow:
+      0 1px 1px rgba(0, 0, 0, 0.10),
+      0 14px 26px -12px var(--note-shadow);
+    /* the note is the sizing context for its own handwriting, so the type
+       scales with the paper instead of overflowing it on small screens */
+    container-type: size;
+    /* percentages, not cqw: an element's own padding resolves against its
+       ancestor container, which would blow the padding out and crush the note */
+    padding: 9.5% 8% 8%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+    will-change: transform;
+    transition: transform 260ms cubic-bezier(.2, .7, .3, 1), opacity 260ms ease;
+  }
+
+  /* the adhesive strip across the top reads slightly darker through the paper */
+  .note::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 26%;
+    pointer-events: none;
+    background: linear-gradient(rgba(0, 0, 0, 0.055), rgba(0, 0, 0, 0));
+  }
+
+  .note > * { position: relative; z-index: 1; }
+
+  .note.behind { pointer-events: none; }
+  .note.live { cursor: grab; }
+  .note.live.dragging { cursor: grabbing; transition: none; }
+
+  .setup {
+    margin: 0;
+    font-family: var(--hand);
+    font-size: 7.2cqw;
+    line-height: 1.32;
+    color: var(--ink);
+    opacity: 0.82;
+    text-wrap: balance;
+  }
+
+  /* the punchline is the point of the note, so it lands bigger and fully inked */
+  .punchline {
+    margin: 5.2cqw 0 0;
+    font-family: var(--hand);
+    font-size: 8.5cqw;
+    line-height: 1.26;
+    color: var(--ink);
+    text-wrap: balance;
+  }
+
+  /* longer jokes step down a size rather than overflowing the square */
+  .note.long .setup { font-size: 6cqw; }
+  .note.long .punchline { font-size: 7cqw; margin-top: 4.2cqw; }
+  .note.xlong .setup { font-size: 5.1cqw; line-height: 1.3; }
+  .note.xlong .punchline { font-size: 5.9cqw; margin-top: 3.5cqw; }
+
+  .note .no {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    font-family: var(--ui);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--ink);
+    opacity: 0.36;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------- end of stack ---------- */
+
+  .done {
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+  }
+
+  .done h2 {
+    margin: 0;
+    font-family: var(--hand);
+    font-size: 9cqw;
+    font-weight: normal;
+    color: var(--ink);
+  }
+
+  .shuffle {
+    font-family: var(--ui);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--chrome-fg);
+    background: transparent;
+    border: 1px solid var(--chrome-line);
+    border-radius: 3px;
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: background 140ms ease, border-color 140ms ease;
+  }
+
+  .shuffle:hover { background: rgba(128, 128, 128, 0.14); border-color: var(--chrome-fg); }
+  .shuffle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .done .shuffle {
+    color: var(--ink);
+    border-color: rgba(0, 0, 0, 0.30);
+  }
+
+  .done .shuffle:hover { background: rgba(0, 0, 0, 0.07); border-color: var(--ink); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .note { transition-duration: 1ms; }
+  }
+
+  /* ---------- installed-app touch behaviour ---------- */
+
+  .note {
+    /* claim the horizontal gesture so iOS doesn't treat a swipe as a scroll */
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
+
+  button {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Sticky Jokes</h1>
+  <span class="count" id="count"></span>
+</header>
+
+<div class="stage">
+  <button class="nav" id="prevBtn" aria-label="Previous joke">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+         stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <polyline points="15 18 9 12 15 6" />
+    </svg>
+  </button>
+
+  <div class="stack" id="stack"></div>
+
+  <button class="nav" id="nextBtn" aria-label="Next joke">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+         stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <polyline points="9 18 15 12 9 6" />
+    </svg>
+  </button>
+</div>
+
+<footer>
+  <button class="shuffle" id="shuffleBtn">Shuffle</button>
+  <span class="hint">Swipe, or use the arrow keys</span>
+</footer>
+
+<script>
+  const JOKES = [
+    ["I'm afraid for the calendar.", "Its days are numbered."],
+    ["Why do fathers take an extra pair of socks when they golf?", "In case they get a hole in one."],
+    ["What do you call a fake noodle?", "An impasta."],
+    ["I only know 25 letters of the alphabet.", "I don't know y."],
+    ["What did the ocean say to the beach?", "Nothing, it just waved."],
+    ["Why don't skeletons fight each other?", "They don't have the guts."],
+    ["I used to hate facial hair.", "But then it grew on me."],
+    ["What do you call a factory that makes okay products?", "A satisfactory."],
+    ["Why did the scarecrow win an award?", "He was outstanding in his field."],
+    ["I would avoid the sushi if I were you.", "It's a little fishy."],
+    ["What's the best thing about Switzerland?", "I don't know, but the flag is a big plus."],
+    ["Did you hear about the guy who invented Lifesavers?", "They say he made a mint."],
+    ["Why can't you hear a pterodactyl in the bathroom?", "Because the P is silent."],
+    ["What do you call a belt made of watches?", "A waist of time."],
+    ["How do you follow Will Smith in the snow?", "You follow the fresh prints."],
+    ["What did one wall say to the other wall?", "I'll meet you at the corner."],
+    ["Why don't eggs tell jokes?", "They'd crack each other up."],
+    ["I told my wife she was drawing her eyebrows too high.", "She looked surprised."],
+    ["What do you call cheese that isn't yours?", "Nacho cheese."],
+    ["Why did the coffee file a police report?", "It got mugged."],
+    ["What's brown and sticky?", "A stick."],
+    ["How does a penguin build its house?", "Igloos it together."],
+    ["Why did the bicycle fall over?", "It was two tired."],
+    ["What do you call a dinosaur with an extensive vocabulary?", "A thesaurus."],
+    ["I don't trust stairs.", "They're always up to something."],
+    ["What did the janitor say when he jumped out of the closet?", "Supplies!"],
+    ["Why do melons have weddings?", "Because they cantaloupe."],
+    ["What's the difference between a poorly dressed man on a unicycle and a well dressed man on a bicycle?", "Attire."],
+    ["How do you make holy water?", "You boil the hell out of it."],
+    ["What did the buffalo say when his son left for college?", "Bison."],
+    ["Why don't scientists trust atoms?", "Because they make up everything."],
+    ["I bought some shoes from a drug dealer.", "I don't know what he laced them with, but I've been tripping all day."],
+    ["What do you call a pile of cats?", "A meowtain."],
+    ["Why did the golfer bring two pairs of pants?", "In case he got a hole in one."],
+    ["What's orange and sounds like a parrot?", "A carrot."],
+    ["I'm reading a book about anti-gravity.", "It's impossible to put down."],
+    ["Did you hear about the restaurant on the moon?", "Great food, no atmosphere."],
+    ["What do you call a bear with no teeth?", "A gummy bear."],
+    ["Why was the math book sad?", "It had too many problems."],
+    ["How do you organize a space party?", "You planet."],
+    ["What do you call a boomerang that doesn't come back?", "A stick."],
+    ["Why did the man fall down the well?", "He couldn't see that well."],
+    ["I'm on a seafood diet.", "I see food and I eat it."],
+    ["What did the grape do when it got stepped on?", "Nothing, it just let out a little wine."],
+    ["Why do bees have sticky hair?", "Because they use honeycombs."],
+    ["What did the zero say to the eight?", "Nice belt."],
+    ["Dad, can you put my shoes on?", "I don't think they'll fit me."],
+    ["Why did the golfer change his socks?", "There was a hole in one."],
+    ["What's a pirate's favorite letter?", "You'd think it's R, but his first love be the C."],
+    ["I made a pencil with two erasers.", "It was pointless."]
+  ];
+
+  /* Sticky-note stock, cycled by position so no two neighbours match. */
+  const PAPERS = ["#FBE94F", "#7FD1EF", "#F98CC0", "#A9E27F", "#FDB35C", "#C6A4EE"];
+
+  /* Fixed tilts, indexed by position, so a note never jumps on re-render. */
+  const TILTS = [-2.4, 1.9, -1.1, 2.3, -0.7, 1.4];
+
+  const stack = document.getElementById('stack');
+  const countEl = document.getElementById('count');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const shuffleBtn = document.getElementById('shuffleBtn');
+
+  let deck = [];
+  let index = 0;
+
+  const shuffle = (a) => {
+    const out = a.slice();
+    for (let i = out.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [out[i], out[j]] = [out[j], out[i]];
+    }
+    return out;
+  };
+
+  const escapeHtml = (s) =>
+    s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+  const paperFor = (position) => PAPERS[(position - 1) % PAPERS.length];
+  const tiltFor = (position) => TILTS[(position - 1) % TILTS.length];
+
+  function buildNote(joke, depth, position) {
+    const el = document.createElement('article');
+    const len = joke[0].length + joke[1].length;
+    const size = len > 150 ? ' xlong' : len > 95 ? ' long' : '';
+
+    el.className = 'note ' + (depth === 0 ? 'live' : 'behind') + size;
+    el.style.setProperty('--paper', paperFor(position));
+
+    const tilt = tiltFor(position);
+    el.style.transform =
+      `translateY(${depth * 8}px) scale(${1 - depth * 0.04}) rotate(${tilt}deg)`;
+    el.style.zIndex = String(10 - depth);
+    el.dataset.tilt = String(tilt);
+
+    el.innerHTML = `
+      <span class="no">${position}</span>
+      <p class="setup">${escapeHtml(joke[0])}</p>
+      <p class="punchline">${escapeHtml(joke[1])}</p>
+    `;
+    return el;
+  }
+
+  function buildDoneNote() {
+    const el = document.createElement('article');
+    el.className = 'note behind done';
+    el.style.setProperty('--paper', paperFor(deck.length + 1));
+    el.style.transform = 'rotate(-1.4deg)';
+    el.style.zIndex = '10';
+    el.innerHTML = `
+      <h2>That's the whole stack.</h2>
+      <button class="shuffle" type="button" data-shuffle>Shuffle</button>
+    `;
+    return el;
+  }
+
+  function render() {
+    stack.querySelectorAll('.note:not(.flung)').forEach((n) => n.remove());
+
+    if (index >= deck.length) {
+      stack.appendChild(buildDoneNote());
+      countEl.textContent = 'All out';
+    } else {
+      for (let depth = 2; depth >= 0; depth--) {
+        const i = index + depth;
+        if (i >= deck.length) continue;
+        stack.appendChild(buildNote(deck[i], depth, i + 1));
+      }
+      countEl.textContent = `${index + 1} / ${deck.length}`;
+      attachDrag(stack.querySelector('.note.live'));
+    }
+
+    prevBtn.disabled = index <= 0;
+    nextBtn.disabled = index >= deck.length;
+  }
+
+  const topNote = () => stack.querySelector('.note.live');
+
+  /* dir: +1 forward, -1 back. The note exits the way you sent it, and the
+     note for the new index is revealed underneath. */
+  function go(dir) {
+    const target = index + dir;
+    if (target < 0 || target > deck.length) return;
+
+    const note = topNote();
+    if (note) {
+      note.classList.remove('live', 'dragging');
+      note.classList.add('flung');
+      note.style.zIndex = '50';
+      note.style.transition = 'transform 380ms cubic-bezier(.4,0,.6,1), opacity 380ms ease';
+      note.style.transform =
+        `translate(${dir * (window.innerWidth + 240)}px, 40px) rotate(${dir * 22}deg)`;
+      note.style.opacity = '0';
+      setTimeout(() => note.remove(), 400);
+    }
+
+    index = target;
+    render();
+  }
+
+  function attachDrag(note) {
+    if (!note) return;
+
+    const tilt = Number(note.dataset.tilt) || 0;
+    let startX = 0, startY = 0, dx = 0, dy = 0, dragging = false, pointerId = null;
+
+    const onDown = (e) => {
+      pointerId = e.pointerId;
+      startX = e.clientX;
+      startY = e.clientY;
+      dx = dy = 0;
+      dragging = true;
+      note.classList.add('dragging');
+      note.setPointerCapture(pointerId);
+    };
+
+    const onMove = (e) => {
+      if (!dragging || e.pointerId !== pointerId) return;
+      dx = e.clientX - startX;
+      dy = e.clientY - startY;
+      // there's nothing before the first note, so dragging back just resists
+      const damped = (dx < 0 && index === 0) ? dx * 0.25 : dx;
+      // keep the note's own tilt while dragging so it doesn't snap upright
+      note.style.transform =
+        `translate(${damped}px, ${dy * 0.35}px) rotate(${tilt + damped * 0.055}deg)`;
+    };
+
+    const onUp = (e) => {
+      if (!dragging || e.pointerId !== pointerId) return;
+      dragging = false;
+      note.classList.remove('dragging');
+
+      if (Math.abs(dx) > 95) {
+        // right is forward for both the swipe and the arrow key
+        const dir = dx > 0 ? 1 : -1;
+        if (!(dir === -1 && index === 0)) { go(dir); return; }
+      }
+
+      note.style.transform = `rotate(${tilt}deg)`;
+    };
+
+    note.addEventListener('pointerdown', onDown);
+    note.addEventListener('pointermove', onMove);
+    note.addEventListener('pointerup', onUp);
+    note.addEventListener('pointercancel', onUp);
+  }
+
+  function start() {
+    deck = shuffle(JOKES);
+    index = 0;
+    stack.querySelectorAll('.note').forEach((n) => n.remove());
+    render();
+  }
+
+  prevBtn.addEventListener('click', () => go(-1));
+  nextBtn.addEventListener('click', () => go(1));
+  shuffleBtn.addEventListener('click', start);
+  stack.addEventListener('click', (e) => {
+    if (e.target.closest('[data-shuffle]')) start();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight') { e.preventDefault(); go(1); }
+    else if (e.key === 'ArrowLeft') { e.preventDefault(); go(-1); }
+  });
+
+  start();
+</script>
+
+<script>
+  // Offline support. Registration failing is not fatal - the app still runs.
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    });
+  }
+</script>
+</body>
+</html>
