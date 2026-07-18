@@ -1,8 +1,12 @@
 # Sticky Jokes
 
-A stack of dad jokes on sticky notes. Swipe right for the next one, left to go
-back; on desktop, the arrows either side of the note do the same thing, as do
-the arrow keys.
+A stack of dad jokes on sticky notes, installable to a phone home screen.
+
+**https://yschatzberg.github.io/dad-jokes/** — see [Installing on a
+phone](#installing-on-a-phone).
+
+Swipe right for the next joke, left to go back. On desktop the arrows either
+side of the note do the same, as do the arrow keys. Right is always forward.
 
 Everything ships in `index.html` — markup, styles, script, and the jokes
 themselves. No build step, no dependencies, no network calls.
@@ -28,20 +32,47 @@ python3 -m http.server 8777
 
 ## Installing on a phone
 
-1. Open the deployed URL in **Safari** on iOS (Add to Home Screen doesn't exist
-   in Chrome on iOS). On Android, use Chrome.
-2. Share → **Add to Home Screen**.
-3. Launch from the icon. It opens full screen with no browser chrome, and works
-   with no signal once it's been opened one time online.
+**Live at: https://yschatzberg.github.io/dad-jokes/**
+
+### iPhone / iPad
+
+1. Open that URL in **Safari**. Add to Home Screen doesn't exist in Chrome on
+   iOS, so this step is Safari-only — the app itself runs fine in any browser.
+2. Share (the square with the arrow) → scroll down → **Add to Home Screen**.
+3. Launch from the icon.
+
+### Android
+
+Open the URL in Chrome → menu → **Install app** (or **Add to Home screen**).
+
+### What you get
+
+Full screen, no browser chrome, its own icon, and it keeps working with no
+signal — the service worker precaches everything the first time you open it
+online.
+
+To confirm offline actually works: open it once with a connection, then turn on
+Airplane Mode and relaunch from the icon. If it loads, you're set.
+
+### If the icon looks wrong or the app won't update
+
+iOS caches aggressively. Delete the home-screen icon, open the URL in Safari
+again, and re-add it.
 
 ## Deploying
 
-Any static host works. For GitHub Pages: push to `main`, then Settings → Pages →
-Source: `main` / root.
+Already set up: GitHub Pages serves `main` from the repo root, so **pushing to
+`main` deploys**. It takes a minute or two to go live.
 
-**After each deploy, bump `CACHE` in `sw.js`** (e.g. `sticky-jokes-v2`).
-The service worker serves cache-first, so without a bump, returning visitors
-keep getting the old files.
+**Bump `CACHE` in `sw.js` before every push** (`sticky-jokes-v2`, and so on).
+The service worker serves cache-first, so without a bump your phone keeps
+serving the old files and it looks like the deploy silently failed.
+
+```sh
+# edit sw.js: const CACHE = 'sticky-jokes-v2';
+git commit -am "Whatever changed"
+git push
+```
 
 ## Adding jokes
 
