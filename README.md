@@ -43,7 +43,25 @@ python3 -m http.server 8777
 
 ### Android
 
-Open the URL in Chrome → menu → **Install app** (or **Add to Home screen**).
+1. Open the URL in **Chrome**.
+2. Tap the **⋮** menu (top right).
+3. Tap **Install app** — older versions say **Add to Home screen**, and some
+   show an **Install** button in a banner at the bottom of the page instead.
+4. Confirm **Install**.
+
+Android goes a step further than iOS here: because the app has a valid manifest,
+a service worker, and 192/512 icons, Chrome installs it as a WebAPK — a real
+app entry. It shows up in the app drawer, gets its own window in Recents, and
+appears under Settings → Apps like anything from the Play Store.
+
+The 512 icon is also declared `maskable`, so Android crops it to whatever icon
+shape your launcher uses (circle, squircle, rounded square) without slicing off
+the note. The artwork is centred with room to spare for exactly this reason.
+
+**Other Android browsers:** Samsung Internet works — menu → **Add page to** →
+**Home screen**. Firefox for Android can add a shortcut but its standalone
+support is weaker, so use Chrome or Samsung Internet if you want it to feel
+like a real app.
 
 ### What you get
 
@@ -56,8 +74,16 @@ Airplane Mode and relaunch from the icon. If it loads, you're set.
 
 ### If the icon looks wrong or the app won't update
 
-iOS caches aggressively. Delete the home-screen icon, open the URL in Safari
-again, and re-add it.
+First, check you bumped `CACHE` in `sw.js` — that's the usual cause, and no
+amount of reinstalling fixes it.
+
+**iOS:** caches aggressively. Delete the home-screen icon, open the URL in
+Safari again, and re-add it.
+
+**Android:** long-press the icon → **Uninstall** (it's a real app, so it
+uninstalls like one), then reinstall from Chrome. Android refreshes the WebAPK
+on its own schedule, so an icon change can take a day or two to appear
+otherwise.
 
 ## Deploying
 
