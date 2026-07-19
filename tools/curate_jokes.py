@@ -1,4 +1,4 @@
-"""Curate jokes from official_joke_api (MIT) for merging into Sticky Jokes.
+"""Curate jokes from official_joke_api (MIT) for merging into dadjokes.wtf.
 
 Filters for: dad-joke shape, family-friendly content, and short enough to fit
 the square note without tripping the .xlong size step.

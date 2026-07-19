@@ -1,6 +1,6 @@
 {
-  "name": "Sticky Jokes",
-  "short_name": "Sticky Jokes",
+  "name": "dadjokes.wtf",
+  "short_name": "dadjokes.wtf",
   "description": "A stack of dad jokes on sticky notes.",
   "start_url": "./",
   "scope": "./",

@@ -1,11 +1,11 @@
-/* Sticky Jokes service worker.
+/* dadjokes.wtf service worker.
 
    Everything ships in the page itself, so the whole app is a handful of files.
    Precache them and serve cache-first: once installed, it works on a plane.
 
    Bump CACHE whenever you deploy, or the old files keep being served. */
 
-const CACHE = 'sticky-jokes-v3';
+const CACHE = 'dadjokes-v4';
 
 const ASSETS = [
   './',

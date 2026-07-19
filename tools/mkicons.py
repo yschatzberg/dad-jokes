@@ -1,4 +1,4 @@
-"""Generate the Sticky Jokes app icons: a tilted yellow note on the dark desk.
+"""Generate the dadjokes.wtf app icons: a tilted yellow note on the dark desk.
 
 Pure stdlib - no PIL on this machine - so it rasterises by supersampling a
 scene function and writes the PNG chunks by hand.

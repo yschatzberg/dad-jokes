@@ -1,4 +1,4 @@
-# Sticky Jokes
+# dadjokes.wtf
 
 A stack of dad jokes on sticky notes, installable to a phone home screen.
 
@@ -94,12 +94,12 @@ otherwise.
 Already set up: GitHub Pages serves `main` from the repo root, so **pushing to
 `main` deploys**. It takes a minute or two to go live.
 
-**Bump `CACHE` in `sw.js` before every push** (`sticky-jokes-v2`, and so on).
+**Bump `CACHE` in `sw.js` before every push** (`dadjokes-v5`, and so on).
 The service worker serves cache-first, so without a bump your phone keeps
 serving the old files and it looks like the deploy silently failed.
 
 ```sh
-# edit sw.js: const CACHE = 'sticky-jokes-v2';
+# edit sw.js: const CACHE = 'dadjokes-v5';
 git commit -am "Whatever changed"
 git push
 ```

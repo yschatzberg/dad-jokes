@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Sticky Jokes</title>
+<title>dadjokes.wtf</title>
 <meta name="description" content="A stack of dad jokes on sticky notes.">
 
 <link rel="manifest" href="./manifest.webmanifest">
@@ -12,7 +12,7 @@
 
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Sticky Jokes">
+<meta name="apple-mobile-web-app-title" content="dadjokes.wtf">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#B5A48B" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#17140F" media="(prefers-color-scheme: dark)">
@@ -440,7 +440,7 @@
 <body>
 
 <header>
-  <h1>Sticky Jokes</h1>
+  <h1>dadjokes.wtf</h1>
   <span class="count" id="count"></span>
 </header>
 
@@ -1019,7 +1019,7 @@
 
     if (navigator.share) {
       try {
-        await navigator.share({ title: 'Sticky Jokes', text, url: link });
+        await navigator.share({ title: 'dadjokes.wtf', text, url: link });
         return;
       } catch (err) {
         // the user backing out of the share sheet is not a failure
