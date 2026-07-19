@@ -110,6 +110,7 @@
 
   footer {
     align-items: center;
+    gap: 8px;
     padding-top: 12px;
     border-top: 1px solid var(--chrome-line);
   }
@@ -137,6 +138,12 @@
     text-transform: uppercase;
     color: var(--chrome-muted);
     opacity: 0.8;
+    text-align: right;
+  }
+
+  /* the hint is the first thing to go when the footer gets tight */
+  @media (max-width: 400px) {
+    .hint { display: none; }
   }
 
   /* ---------- stage: arrow, stack, arrow ---------- */
@@ -217,6 +224,7 @@
     height: 26%;
     pointer-events: none;
     background: linear-gradient(rgba(0, 0, 0, 0.055), rgba(0, 0, 0, 0));
+    z-index: 3;
   }
 
   .note > * { position: relative; z-index: 1; }
@@ -235,9 +243,21 @@
     text-wrap: balance;
   }
 
+  /* ---------- peel to reveal ---------- */
+
+  .reveal {
+    position: relative;
+    margin-top: 5.2cqw;
+    min-height: 26cqw;
+    display: flex;
+    align-items: center;
+    /* the flap is a sheet of paper hinging away from the viewer */
+    perspective: 700px;
+  }
+
   /* the punchline is the point of the note, so it lands bigger and fully inked */
   .punchline {
-    margin: 5.2cqw 0 0;
+    margin: 0;
     font-family: var(--hand);
     font-size: 8.5cqw;
     line-height: 1.26;
@@ -245,11 +265,79 @@
     text-wrap: balance;
   }
 
+  .flap {
+    position: absolute;
+    /* overhang the text slightly so no ascenders peek out from under it */
+    inset: -2cqw -1.5cqw;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 1px;
+    font-family: var(--ui);
+    color: var(--ink);
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    /* same stock as the note, with the shading a lifted sheet would carry */
+    background-color: var(--paper);
+    background-image: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.075),
+      rgba(0, 0, 0, 0.012) 38%,
+      rgba(255, 255, 255, 0.10)
+    );
+    box-shadow: 0 5px 9px -6px rgba(0, 0, 0, 0.5);
+    transform-origin: top center;
+    transform: rotateX(0deg);
+    opacity: 1;
+    z-index: 2;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 520ms cubic-bezier(.2, .7, .25, 1),
+                opacity 520ms cubic-bezier(.2, .7, .25, 1);
+  }
+
+  /* while a finger is on it, the flap tracks the finger with no easing */
+  .flap.instant { transition: none; }
+
+  .flap:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* perforation along the hinge, so it reads as something you tear open */
+  .flap::before {
+    content: "";
+    position: absolute;
+    top: 2cqw;
+    left: 1.5cqw;
+    right: 1.5cqw;
+    border-top: 1.5px dashed rgba(0, 0, 0, 0.28);
+  }
+
+  /* dog-eared corner: the bit you'd actually pinch */
+  .flap::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    border-width: 0 0 3.6cqw 3.6cqw;
+    border-style: solid;
+    border-color: transparent transparent rgba(0, 0, 0, 0.16) transparent;
+  }
+
+  .flap-label {
+    font-size: 2.9cqw;
+    letter-spacing: 0.17em;
+    text-transform: uppercase;
+    opacity: 0.55;
+    padding-top: 1.5cqw;
+    pointer-events: none;
+  }
+
   /* longer jokes step down a size rather than overflowing the square */
   .note.long .setup { font-size: 6cqw; }
-  .note.long .punchline { font-size: 7cqw; margin-top: 4.2cqw; }
+  .note.long .punchline { font-size: 7cqw; }
+  .note.long .reveal { margin-top: 4.2cqw; min-height: 22cqw; }
   .note.xlong .setup { font-size: 5.1cqw; line-height: 1.3; }
-  .note.xlong .punchline { font-size: 5.9cqw; margin-top: 3.5cqw; }
+  .note.xlong .punchline { font-size: 5.9cqw; }
+  .note.xlong .reveal { margin-top: 3.5cqw; min-height: 18cqw; }
 
   .note .no {
     position: absolute;
@@ -261,6 +349,7 @@
     color: var(--ink);
     opacity: 0.36;
     font-variant-numeric: tabular-nums;
+    z-index: 4;
   }
 
   /* ---------- end of stack ---------- */
@@ -280,7 +369,9 @@
     color: var(--ink);
   }
 
-  .shuffle {
+  /* ---------- buttons ---------- */
+
+  .btn {
     font-family: var(--ui);
     font-size: 11px;
     font-weight: 600;
@@ -290,24 +381,41 @@
     background: transparent;
     border: 1px solid var(--chrome-line);
     border-radius: 3px;
-    padding: 10px 15px;
+    padding: 10px 14px;
     cursor: pointer;
     transition: background 140ms ease, border-color 140ms ease;
   }
 
-  .shuffle:hover { background: rgba(128, 128, 128, 0.14); border-color: var(--chrome-fg); }
-  .shuffle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .btn:hover { background: rgba(128, 128, 128, 0.14); border-color: var(--chrome-fg); }
+  .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-  .done .shuffle {
+  .done .btn {
     color: var(--ink);
     border-color: rgba(0, 0, 0, 0.30);
   }
 
-  .done .shuffle:hover { background: rgba(0, 0, 0, 0.07); border-color: var(--ink); }
+  .done .btn:hover { background: rgba(0, 0, 0, 0.07); border-color: var(--ink); }
 
-  @media (prefers-reduced-motion: reduce) {
-    .note { transition-duration: 1ms; }
+  /* ---------- toast ---------- */
+
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+    transform: translate(-50%, 8px);
+    padding: 10px 16px;
+    border-radius: 4px;
+    background: var(--ink);
+    color: #F6F1E4;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 200ms ease, transform 200ms ease;
+    z-index: 100;
   }
+
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
   /* ---------- installed-app touch behaviour ---------- */
 
@@ -322,6 +430,10 @@
   button {
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .note, .flap { transition-duration: 1ms; }
   }
 </style>
 </head>
@@ -351,62 +463,68 @@
 </div>
 
 <footer>
-  <button class="shuffle" id="shuffleBtn">Shuffle</button>
-  <span class="hint">Swipe, or use the arrow keys</span>
+  <button class="btn" id="shuffleBtn">Shuffle</button>
+  <button class="btn" id="shareBtn">Share</button>
+  <span class="hint">Peel for the punchline</span>
 </footer>
 
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
 <script>
+  /* Jokes carry a permanent `id`. Share links point at the id, so it must never
+     be reused or renumbered - add new jokes with the next number up, and don't
+     renumber if one is removed. Order in this array doesn't matter. */
   const JOKES = [
-    ["I'm afraid for the calendar.", "Its days are numbered."],
-    ["Why do fathers take an extra pair of socks when they golf?", "In case they get a hole in one."],
-    ["What do you call a fake noodle?", "An impasta."],
-    ["I only know 25 letters of the alphabet.", "I don't know y."],
-    ["What did the ocean say to the beach?", "Nothing, it just waved."],
-    ["Why don't skeletons fight each other?", "They don't have the guts."],
-    ["I used to hate facial hair.", "But then it grew on me."],
-    ["What do you call a factory that makes okay products?", "A satisfactory."],
-    ["Why did the scarecrow win an award?", "He was outstanding in his field."],
-    ["I would avoid the sushi if I were you.", "It's a little fishy."],
-    ["What's the best thing about Switzerland?", "I don't know, but the flag is a big plus."],
-    ["Did you hear about the guy who invented Lifesavers?", "They say he made a mint."],
-    ["Why can't you hear a pterodactyl in the bathroom?", "Because the P is silent."],
-    ["What do you call a belt made of watches?", "A waist of time."],
-    ["How do you follow Will Smith in the snow?", "You follow the fresh prints."],
-    ["What did one wall say to the other wall?", "I'll meet you at the corner."],
-    ["Why don't eggs tell jokes?", "They'd crack each other up."],
-    ["I told my wife she was drawing her eyebrows too high.", "She looked surprised."],
-    ["What do you call cheese that isn't yours?", "Nacho cheese."],
-    ["Why did the coffee file a police report?", "It got mugged."],
-    ["What's brown and sticky?", "A stick."],
-    ["How does a penguin build its house?", "Igloos it together."],
-    ["Why did the bicycle fall over?", "It was two tired."],
-    ["What do you call a dinosaur with an extensive vocabulary?", "A thesaurus."],
-    ["I don't trust stairs.", "They're always up to something."],
-    ["What did the janitor say when he jumped out of the closet?", "Supplies!"],
-    ["Why do melons have weddings?", "Because they cantaloupe."],
-    ["What's the difference between a poorly dressed man on a unicycle and a well dressed man on a bicycle?", "Attire."],
-    ["How do you make holy water?", "You boil the hell out of it."],
-    ["What did the buffalo say when his son left for college?", "Bison."],
-    ["Why don't scientists trust atoms?", "Because they make up everything."],
-    ["I bought some shoes from a drug dealer.", "I don't know what he laced them with, but I've been tripping all day."],
-    ["What do you call a pile of cats?", "A meowtain."],
-    ["Why did the golfer bring two pairs of pants?", "In case he got a hole in one."],
-    ["What's orange and sounds like a parrot?", "A carrot."],
-    ["I'm reading a book about anti-gravity.", "It's impossible to put down."],
-    ["Did you hear about the restaurant on the moon?", "Great food, no atmosphere."],
-    ["What do you call a bear with no teeth?", "A gummy bear."],
-    ["Why was the math book sad?", "It had too many problems."],
-    ["How do you organize a space party?", "You planet."],
-    ["What do you call a boomerang that doesn't come back?", "A stick."],
-    ["Why did the man fall down the well?", "He couldn't see that well."],
-    ["I'm on a seafood diet.", "I see food and I eat it."],
-    ["What did the grape do when it got stepped on?", "Nothing, it just let out a little wine."],
-    ["Why do bees have sticky hair?", "Because they use honeycombs."],
-    ["What did the zero say to the eight?", "Nice belt."],
-    ["Dad, can you put my shoes on?", "I don't think they'll fit me."],
-    ["Why did the golfer change his socks?", "There was a hole in one."],
-    ["What's a pirate's favorite letter?", "You'd think it's R, but his first love be the C."],
-    ["I made a pencil with two erasers.", "It was pointless."]
+    { id: 1,  s: "I'm afraid for the calendar.", p: "Its days are numbered." },
+    { id: 2,  s: "Why do fathers take an extra pair of socks when they golf?", p: "In case they get a hole in one." },
+    { id: 3,  s: "What do you call a fake noodle?", p: "An impasta." },
+    { id: 4,  s: "I only know 25 letters of the alphabet.", p: "I don't know y." },
+    { id: 5,  s: "What did the ocean say to the beach?", p: "Nothing, it just waved." },
+    { id: 6,  s: "Why don't skeletons fight each other?", p: "They don't have the guts." },
+    { id: 7,  s: "I used to hate facial hair.", p: "But then it grew on me." },
+    { id: 8,  s: "What do you call a factory that makes okay products?", p: "A satisfactory." },
+    { id: 9,  s: "Why did the scarecrow win an award?", p: "He was outstanding in his field." },
+    { id: 10, s: "I would avoid the sushi if I were you.", p: "It's a little fishy." },
+    { id: 11, s: "What's the best thing about Switzerland?", p: "I don't know, but the flag is a big plus." },
+    { id: 12, s: "Did you hear about the guy who invented Lifesavers?", p: "They say he made a mint." },
+    { id: 13, s: "Why can't you hear a pterodactyl in the bathroom?", p: "Because the P is silent." },
+    { id: 14, s: "What do you call a belt made of watches?", p: "A waist of time." },
+    { id: 15, s: "How do you follow Will Smith in the snow?", p: "You follow the fresh prints." },
+    { id: 16, s: "What did one wall say to the other wall?", p: "I'll meet you at the corner." },
+    { id: 17, s: "Why don't eggs tell jokes?", p: "They'd crack each other up." },
+    { id: 18, s: "I told my wife she was drawing her eyebrows too high.", p: "She looked surprised." },
+    { id: 19, s: "What do you call cheese that isn't yours?", p: "Nacho cheese." },
+    { id: 20, s: "Why did the coffee file a police report?", p: "It got mugged." },
+    { id: 21, s: "What's brown and sticky?", p: "A stick." },
+    { id: 22, s: "How does a penguin build its house?", p: "Igloos it together." },
+    { id: 23, s: "Why did the bicycle fall over?", p: "It was two tired." },
+    { id: 24, s: "What do you call a dinosaur with an extensive vocabulary?", p: "A thesaurus." },
+    { id: 25, s: "I don't trust stairs.", p: "They're always up to something." },
+    { id: 26, s: "What did the janitor say when he jumped out of the closet?", p: "Supplies!" },
+    { id: 27, s: "Why do melons have weddings?", p: "Because they cantaloupe." },
+    { id: 28, s: "What's the difference between a poorly dressed man on a unicycle and a well dressed man on a bicycle?", p: "Attire." },
+    { id: 29, s: "How do you make holy water?", p: "You boil the hell out of it." },
+    { id: 30, s: "What did the buffalo say when his son left for college?", p: "Bison." },
+    { id: 31, s: "Why don't scientists trust atoms?", p: "Because they make up everything." },
+    { id: 32, s: "I bought some shoes from a drug dealer.", p: "I don't know what he laced them with, but I've been tripping all day." },
+    { id: 33, s: "What do you call a pile of cats?", p: "A meowtain." },
+    { id: 34, s: "Why did the golfer bring two pairs of pants?", p: "In case he got a hole in one." },
+    { id: 35, s: "What's orange and sounds like a parrot?", p: "A carrot." },
+    { id: 36, s: "I'm reading a book about anti-gravity.", p: "It's impossible to put down." },
+    { id: 37, s: "Did you hear about the restaurant on the moon?", p: "Great food, no atmosphere." },
+    { id: 38, s: "What do you call a bear with no teeth?", p: "A gummy bear." },
+    { id: 39, s: "Why was the math book sad?", p: "It had too many problems." },
+    { id: 40, s: "How do you organize a space party?", p: "You planet." },
+    { id: 41, s: "What do you call a boomerang that doesn't come back?", p: "A stick." },
+    { id: 42, s: "Why did the man fall down the well?", p: "He couldn't see that well." },
+    { id: 43, s: "I'm on a seafood diet.", p: "I see food and I eat it." },
+    { id: 44, s: "What did the grape do when it got stepped on?", p: "Nothing, it just let out a little wine." },
+    { id: 45, s: "Why do bees have sticky hair?", p: "Because they use honeycombs." },
+    { id: 46, s: "What did the zero say to the eight?", p: "Nice belt." },
+    { id: 47, s: "Dad, can you put my shoes on?", p: "I don't think they'll fit me." },
+    { id: 48, s: "Why did the golfer change his socks?", p: "There was a hole in one." },
+    { id: 49, s: "What's a pirate's favorite letter?", p: "You'd think it's R, but his first love be the C." },
+    { id: 50, s: "I made a pencil with two erasers.", p: "It was pointless." }
   ];
 
   /* Sticky-note stock, cycled by position so no two neighbours match. */
@@ -415,14 +533,24 @@
   /* Fixed tilts, indexed by position, so a note never jumps on re-render. */
   const TILTS = [-2.4, 1.9, -1.1, 2.3, -0.7, 1.4];
 
+  const PEEL_DEG = 168;      // how far the flap swings open
+  const PEEL_TRAVEL = 110;   // px of finger travel for a full peel
+  const SWIPE_MIN = 95;      // px before a horizontal drag counts as a swipe
+  const AXIS_LOCK = 8;       // px before we decide peel-vs-navigate
+
   const stack = document.getElementById('stack');
   const countEl = document.getElementById('count');
   const prevBtn = document.getElementById('prevBtn');
   const nextBtn = document.getElementById('nextBtn');
   const shuffleBtn = document.getElementById('shuffleBtn');
+  const shareBtn = document.getElementById('shareBtn');
+  const toastEl = document.getElementById('toast');
 
   let deck = [];
   let index = 0;
+  let suppressClick = false;   // a drag shouldn't also fire the flap's click
+
+  const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 
   const shuffle = (a) => {
     const out = a.slice();
@@ -439,9 +567,19 @@
   const paperFor = (position) => PAPERS[(position - 1) % PAPERS.length];
   const tiltFor = (position) => TILTS[(position - 1) % TILTS.length];
 
+  let toastTimer = null;
+  function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2200);
+  }
+
+  /* ---------- notes ---------- */
+
   function buildNote(joke, depth, position) {
     const el = document.createElement('article');
-    const len = joke[0].length + joke[1].length;
+    const len = joke.s.length + joke.p.length;
     const size = len > 150 ? ' xlong' : len > 95 ? ' long' : '';
 
     el.className = 'note ' + (depth === 0 ? 'live' : 'behind') + size;
@@ -455,8 +593,14 @@
 
     el.innerHTML = `
       <span class="no">${position}</span>
-      <p class="setup">${escapeHtml(joke[0])}</p>
-      <p class="punchline">${escapeHtml(joke[1])}</p>
+      <p class="setup">${escapeHtml(joke.s)}</p>
+      <div class="reveal">
+        <p class="punchline">${escapeHtml(joke.p)}</p>
+        <button class="flap" type="button" aria-expanded="false"
+                aria-label="Peel to reveal the punchline">
+          <span class="flap-label">Peel</span>
+        </button>
+      </div>
     `;
     return el;
   }
@@ -469,9 +613,30 @@
     el.style.zIndex = '10';
     el.innerHTML = `
       <h2>That's the whole stack.</h2>
-      <button class="shuffle" type="button" data-shuffle>Shuffle</button>
+      <button class="btn" type="button" data-shuffle>Shuffle</button>
     `;
     return el;
+  }
+
+  /* p runs 0 (shut) to 1 (fully peeled) */
+  function setPeel(note, p, animate) {
+    const flap = note && note.querySelector('.flap');
+    if (!flap) return;
+    flap.classList.toggle('instant', !animate);
+    flap.style.transform = `rotateX(${(-PEEL_DEG * p).toFixed(2)}deg)`;
+    flap.style.opacity = String(clamp((1 - p) * 3.5, 0, 1));
+
+    const open = p >= 1;
+    note.classList.toggle('peeled', open);
+    flap.setAttribute('aria-expanded', open ? 'true' : 'false');
+    // once open, the flap must not sit in front of the punchline
+    flap.style.pointerEvents = open ? 'none' : '';
+  }
+
+  const isPeeled = (note) => note.classList.contains('peeled');
+
+  function togglePeel(note) {
+    setPeel(note, isPeeled(note) ? 0 : 1, true);
   }
 
   function render() {
@@ -492,6 +657,7 @@
 
     prevBtn.disabled = index <= 0;
     nextBtn.disabled = index >= deck.length;
+    shareBtn.disabled = index >= deck.length;
   }
 
   const topNote = () => stack.querySelector('.note.live');
@@ -518,17 +684,25 @@
     render();
   }
 
+  /* ---------- gestures ----------
+     One pointer stream serves two gestures, so the first few pixels decide
+     which: mostly sideways is navigation, mostly vertical on the flap is a
+     peel. Whichever wins keeps the gesture until the finger lifts. */
   function attachDrag(note) {
     if (!note) return;
 
     const tilt = Number(note.dataset.tilt) || 0;
-    let startX = 0, startY = 0, dx = 0, dy = 0, dragging = false, pointerId = null;
+    const flap = note.querySelector('.flap');
+    let startX = 0, startY = 0, dx = 0, dy = 0;
+    let dragging = false, pointerId = null, axis = null, onFlap = false;
 
     const onDown = (e) => {
       pointerId = e.pointerId;
       startX = e.clientX;
       startY = e.clientY;
       dx = dy = 0;
+      axis = null;
+      onFlap = !!(flap && !isPeeled(note) && e.target.closest('.flap'));
       dragging = true;
       note.classList.add('dragging');
       note.setPointerCapture(pointerId);
@@ -538,11 +712,20 @@
       if (!dragging || e.pointerId !== pointerId) return;
       dx = e.clientX - startX;
       dy = e.clientY - startY;
-      // there's nothing before the first note, so dragging back just resists
-      const damped = (dx < 0 && index === 0) ? dx * 0.25 : dx;
-      // keep the note's own tilt while dragging so it doesn't snap upright
-      note.style.transform =
-        `translate(${damped}px, ${dy * 0.35}px) rotate(${tilt + damped * 0.055}deg)`;
+
+      if (axis === null && (Math.abs(dx) > AXIS_LOCK || Math.abs(dy) > AXIS_LOCK)) {
+        if (Math.abs(dx) >= Math.abs(dy)) axis = 'h';
+        else axis = onFlap ? 'v' : 'h';
+      }
+
+      if (axis === 'h') {
+        // there's nothing before the first note, so dragging back just resists
+        const damped = (dx < 0 && index === 0) ? dx * 0.25 : dx;
+        note.style.transform =
+          `translate(${damped}px, ${dy * 0.35}px) rotate(${tilt + damped * 0.055}deg)`;
+      } else if (axis === 'v') {
+        setPeel(note, clamp(-dy / PEEL_TRAVEL, 0, 1), false);
+      }
     };
 
     const onUp = (e) => {
@@ -550,13 +733,29 @@
       dragging = false;
       note.classList.remove('dragging');
 
-      if (Math.abs(dx) > 95) {
-        // right is forward for both the swipe and the arrow key
-        const dir = dx > 0 ? 1 : -1;
-        if (!(dir === -1 && index === 0)) { go(dir); return; }
+      if (axis === 'v') {
+        suppressClick = true;
+        setPeel(note, (-dy / PEEL_TRAVEL) > 0.4 ? 1 : 0, true);
+        return;
       }
 
-      note.style.transform = `rotate(${tilt}deg)`;
+      if (axis === 'h') {
+        suppressClick = true;
+        note.style.transform = `rotate(${tilt}deg)`;
+        if (Math.abs(dx) > SWIPE_MIN) {
+          const dir = dx > 0 ? 1 : -1;
+          if (!(dir === -1 && index === 0)) go(dir);
+        }
+        return;
+      }
+
+      // Never moved: a tap. Handled here rather than in the click listener
+      // because pointer capture retargets the click to the note, so the
+      // listener can't tell the flap was what got tapped.
+      if (axis === null && onFlap) {
+        suppressClick = true;
+        togglePeel(note);
+      }
     };
 
     note.addEventListener('pointerdown', onDown);
@@ -565,26 +764,102 @@
     note.addEventListener('pointercancel', onUp);
   }
 
-  function start() {
+  /* ---------- sharing ---------- */
+
+  const currentJoke = () => (index < deck.length ? deck[index] : null);
+
+  function linkFor(joke) {
+    const url = new URL(window.location.href);
+    url.hash = '';
+    url.search = '?j=' + joke.id;
+    return url.toString();
+  }
+
+  async function shareCurrent() {
+    const joke = currentJoke();
+    if (!joke) return;
+
+    const link = linkFor(joke);
+    const text = joke.s + '\n' + joke.p;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'Sticky Jokes', text, url: link });
+        return;
+      } catch (err) {
+        // the user backing out of the share sheet is not a failure
+        if (err && err.name === 'AbortError') return;
+      }
+    }
+
+    try {
+      await navigator.clipboard.writeText(text + '\n' + link);
+      toast('Joke copied to clipboard');
+    } catch (err) {
+      toast('Could not share on this browser');
+    }
+  }
+
+  /* ---------- start ---------- */
+
+  function start(targetId) {
     deck = shuffle(JOKES);
+
+    // a shared link opens on its joke, with the rest of the stack behind it
+    if (targetId) {
+      const at = deck.findIndex((j) => j.id === targetId);
+      if (at > 0) deck.unshift(deck.splice(at, 1)[0]);
+    }
+
     index = 0;
     stack.querySelectorAll('.note').forEach((n) => n.remove());
     render();
   }
 
+  function sharedId() {
+    const raw = new URLSearchParams(window.location.search).get('j');
+    // digits only: parseInt would read "1e3" as 1 and open a joke nobody linked
+    if (!raw || !/^\d+$/.test(raw)) return null;
+    const id = Number.parseInt(raw, 10);
+    return JOKES.some((j) => j.id === id) ? id : null;
+  }
+
   prevBtn.addEventListener('click', () => go(-1));
   nextBtn.addEventListener('click', () => go(1));
-  shuffleBtn.addEventListener('click', start);
+  shareBtn.addEventListener('click', shareCurrent);
+
+  shuffleBtn.addEventListener('click', () => {
+    // dropping ?j stops a refresh from snapping back to the shared joke
+    history.replaceState(null, '', window.location.pathname);
+    start(null);
+  });
+
   stack.addEventListener('click', (e) => {
-    if (e.target.closest('[data-shuffle]')) start();
+    if (suppressClick) { suppressClick = false; return; }
+    if (e.target.closest('[data-shuffle]')) {
+      history.replaceState(null, '', window.location.pathname);
+      start(null);
+      return;
+    }
+    const flap = e.target.closest('.flap');
+    if (flap) {
+      const note = flap.closest('.note');
+      if (note && note.classList.contains('live')) togglePeel(note);
+    }
   });
 
   document.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowRight') { e.preventDefault(); go(1); }
     else if (e.key === 'ArrowLeft') { e.preventDefault(); go(-1); }
+    else if (e.key === ' ' || e.key === 'Enter') {
+      // space peels, unless focus is on a control that wants the key itself
+      if (e.target && e.target.closest('button')) return;
+      const note = topNote();
+      if (note) { e.preventDefault(); togglePeel(note); }
+    }
   });
 
-  start();
+  start(sharedId());
 </script>
 
 <script>

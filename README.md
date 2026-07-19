@@ -8,6 +8,9 @@ phone](#installing-on-a-phone).
 Swipe right for the next joke, left to go back. On desktop the arrows either
 side of the note do the same, as do the arrow keys. Right is always forward.
 
+The punchline hides under a flap — tap it, or drag it upward, to peel it open.
+Space bar works too.
+
 Everything ships in `index.html` — markup, styles, script, and the jokes
 themselves. No build step, no dependencies, no network calls.
 
@@ -102,13 +105,39 @@ git push
 
 ## Adding jokes
 
-They're a plain array of `[setup, punchline]` pairs near the top of the script
-in `index.html`.
+They're an array of `{ id, s, p }` objects near the top of the script in
+`index.html` — `s` is the setup, `p` is the punchline.
+
+**`id` is permanent.** Share links point at it, so never renumber, and never
+reuse the id of a joke you delete. New jokes take the next number up. Order in
+the array doesn't matter; the deck is shuffled anyway.
 
 Notes size their own text with container query units, and long jokes step down
 a size via the `.long` / `.xlong` classes, which key off character count. That
 threshold is a proxy for how the text actually wraps — if you add a much longer
-joke than the current set, check it still fits inside the square.
+joke than the current set, check it still fits inside the square, and that the
+flap still covers the whole punchline.
+
+### Where these came from
+
+The starting 50 are classic dad jokes in wide circulation, written out from
+memory rather than copied from any single source. If you want to grow the set,
+[official_joke_api](https://github.com/15Dkatz/official_joke_api) is **MIT
+licensed** and has ~380 general jokes — permissive enough to bundle, unlike
+most joke APIs, which publish no content licence at all.
+
+Bundle them into `index.html` rather than fetching at runtime. A network call
+would break offline support, which is most of the point of installing this.
+
+## Sharing
+
+The **Share** button uses the Web Share API where it exists (iOS, Android), so
+you get the native share sheet. Elsewhere it copies the joke and link to the
+clipboard and shows a toast.
+
+Shared links look like `https://dadjokes.wtf/?j=18`. Opening one puts that joke
+first in the stack, still covered — the recipient gets to peel it themselves.
+**Shuffle** clears the `?j=` from the URL so a refresh doesn't snap back to it.
 
 ## Icons
 
