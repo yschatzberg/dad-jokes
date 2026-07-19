@@ -909,8 +909,11 @@
       note.classList.add('flung');
       note.style.zIndex = '50';
       note.style.transition = 'transform 380ms cubic-bezier(.4,0,.6,1), opacity 380ms ease';
+      // the note leaves opposite to travel: going forward sends it off the
+      // left, which is also the way the finger just flicked it
+      const exit = -dir;
       note.style.transform =
-        `translate(${dir * (window.innerWidth + 240)}px, 40px) rotate(${dir * 22}deg)`;
+        `translate(${exit * (window.innerWidth + 240)}px, 40px) rotate(${exit * 22}deg)`;
       note.style.opacity = '0';
       setTimeout(() => note.remove(), 400);
     }
@@ -956,7 +959,7 @@
 
       if (axis === 'h') {
         // there's nothing before the first note, so dragging back just resists
-        const damped = (dx < 0 && index === 0) ? dx * 0.25 : dx;
+        const damped = (dx > 0 && index === 0) ? dx * 0.25 : dx;
         note.style.transform =
           `translate(${damped}px, ${dy * 0.35}px) rotate(${tilt + damped * 0.055}deg)`;
       } else if (axis === 'v') {
@@ -979,7 +982,8 @@
         suppressClick = true;
         note.style.transform = `rotate(${tilt}deg)`;
         if (Math.abs(dx) > SWIPE_MIN) {
-          const dir = dx > 0 ? 1 : -1;
+          // swipe the note away to the left to advance, like turning a page
+          const dir = dx < 0 ? 1 : -1;
           if (!(dir === -1 && index === 0)) go(dir);
         }
         return;
