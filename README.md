@@ -12,6 +12,9 @@ is forward.
 The punchline hides under a flap. Tap anywhere on the note to peel it open —
 or drag upward if you want to lift it by hand. Space bar works too.
 
+Tap the star to save a joke (or press `s`); the **Saved** button opens just
+your saved ones.
+
 Everything ships in `index.html` — markup, styles, script, and the jokes
 themselves. No build step, no dependencies, no network calls.
 
@@ -147,6 +150,20 @@ made by reading all 333 survivors.
 They're bundled into `index.html` rather than fetched at runtime, because a
 network call would break offline support, which is most of the point of
 installing this.
+
+## Saved jokes
+
+Saves live in `localStorage` under `dadjokes.faves.v1`, as an array of joke
+`id`s. No account, no server — nothing leaves the device. The **Saved** button
+filters the deck to those ids; the star on each note toggles membership.
+
+The trade of staying account-free: saves don't sync to another device, and
+clearing site data clears them. On-device storage keeps the app a static site,
+which is worth more here than cross-device sync.
+
+Reads are defensive — a disabled or full `localStorage` (private mode, say)
+degrades to "saves don't persist" rather than breaking the app, and ids that
+no longer match a joke are ignored on load.
 
 ## Sharing
 

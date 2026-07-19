@@ -10,14 +10,11 @@ costs, and data to look after.
 
 ## Fits the current architecture
 
-### 1. Like / favourite a joke
+### 1. Like / favourite a joke — DONE (2026-07-18)
 
-Store favourites in `localStorage`, keyed by the permanent joke `id`. A
-"favourites" view filters the deck to those ids.
-
-Stays entirely on-device, so no backend, no accounts, no privacy questions.
-Trade-off: favourites don't follow you to another device, and clearing site
-data loses them.
+Shipped. A star on each note saves it to `localStorage` (keyed by joke id), the
+**Saved** button opens a filtered view, `s` is the keyboard shortcut. On-device
+only, as planned — see the "Saved jokes" section of the README.
 
 ### 4. Guess the punchline
 
