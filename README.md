@@ -96,12 +96,12 @@ otherwise.
 Already set up: GitHub Pages serves `main` from the repo root, so **pushing to
 `main` deploys**. It takes a minute or two to go live.
 
-**Bump `CACHE` in `sw.js` before every push** (`dadjokes-v7`, and so on).
+**Bump `CACHE` in `sw.js` before every push** (`dadjokes-v8`, and so on).
 The service worker serves cache-first, so without a bump your phone keeps
 serving the old files and it looks like the deploy silently failed.
 
 ```sh
-# edit sw.js: const CACHE = 'dadjokes-v7';
+# edit sw.js: const CACHE = 'dadjokes-v8';
 git commit -am "Whatever changed"
 git push
 ```
@@ -152,9 +152,23 @@ The **Share** button uses the Web Share API where it exists (iOS, Android), so
 you get the native share sheet. Elsewhere it copies the joke and link to the
 clipboard and shows a toast.
 
+The message contains **the setup only** — the punchline stays behind the link,
+so the recipient peels it themselves. Sending both would defeat the point.
+
 Shared links look like `https://dadjokes.wtf/?j=18`. Opening one puts that joke
-first in the stack, still covered — the recipient gets to peel it themselves.
-**Shuffle** clears the `?j=` from the URL so a refresh doesn't snap back to it.
+first in the stack, still covered. **Shuffle** clears the `?j=` from the URL so
+a refresh doesn't snap back to it.
+
+### The link preview card
+
+Open Graph tags in `index.html` control the card iMessage, Slack, and friends
+show under the message. **Never put joke text in them.** Link crawlers don't
+run JavaScript, so they read the same static markup for every `?j=` value —
+whatever is in those tags is what *every* shared joke would display.
+
+Making the card itself show each joke's setup would mean pre-generating one
+small HTML file per joke, each with its own `og:description`, since a static
+host can't vary a response by query string.
 
 ## Icons
 

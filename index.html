@@ -17,6 +17,20 @@
 <meta name="theme-color" content="#B5A48B" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#17140F" media="(prefers-color-scheme: dark)">
 
+<!-- The card iMessage and friends show for a shared link. Never put a
+     punchline in here: link crawlers don't run JS, so whatever sits in this
+     markup is what every shared joke shows. -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="dadjokes.wtf">
+<meta property="og:url" content="https://dadjokes.wtf/">
+<meta property="og:title" content="dadjokes.wtf">
+<meta property="og:description" content="A dad joke, punchline hidden. Tap the note to peel it.">
+<meta property="og:image" content="https://dadjokes.wtf/icons/icon-512.png">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="dadjokes.wtf">
+<meta name="twitter:description" content="A dad joke, punchline hidden. Tap the note to peel it.">
+<meta name="twitter:image" content="https://dadjokes.wtf/icons/icon-512.png">
+
 <style>
   :root {
     --desk: #B5A48B;
@@ -1021,7 +1035,9 @@
     if (!joke) return;
 
     const link = linkFor(joke);
-    const text = joke.s + '\n' + joke.p;
+    // Setup only. Sending the punchline in the message defeats the point -
+    // the link is what delivers it, once they peel the note themselves.
+    const text = joke.s;
 
     if (navigator.share) {
       try {
