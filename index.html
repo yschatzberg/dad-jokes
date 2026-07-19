@@ -465,7 +465,7 @@
 <footer>
   <button class="btn" id="shuffleBtn">Shuffle</button>
   <button class="btn" id="shareBtn">Share</button>
-  <span class="hint">Peel for the punchline</span>
+  <span class="hint">Tap the note for the punchline</span>
 </footer>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -832,8 +832,8 @@
       <div class="reveal">
         <p class="punchline">${escapeHtml(joke.p)}</p>
         <button class="flap" type="button" aria-expanded="false"
-                aria-label="Peel to reveal the punchline">
-          <span class="flap-label">Peel</span>
+                aria-label="Reveal the punchline">
+          <span class="flap-label">Tap to reveal</span>
         </button>
       </div>
     `;
@@ -950,7 +950,8 @@
 
       if (axis === null && (Math.abs(dx) > AXIS_LOCK || Math.abs(dy) > AXIS_LOCK)) {
         if (Math.abs(dx) >= Math.abs(dy)) axis = 'h';
-        else axis = onFlap ? 'v' : 'h';
+        // dragging up anywhere on a covered note peels it, not just on the flap
+        else axis = isPeeled(note) ? 'h' : 'v';
       }
 
       if (axis === 'h') {
@@ -984,10 +985,11 @@
         return;
       }
 
-      // Never moved: a tap. Handled here rather than in the click listener
-      // because pointer capture retargets the click to the note, so the
-      // listener can't tell the flap was what got tapped.
-      if (axis === null && onFlap) {
+      // Never moved: a tap anywhere on the note reveals the punchline. The
+      // flap alone is a small target, and tapping the note and getting nothing
+      // just reads as broken. Handled here rather than in the click listener
+      // because pointer capture retargets the click to the note.
+      if (axis === null) {
         suppressClick = true;
         togglePeel(note);
       }

@@ -7,8 +7,8 @@ A stack of dad jokes on sticky notes, installable to a phone home screen.
 Swipe right for the next joke, left to go back. On desktop the arrows either
 side of the note do the same, as do the arrow keys. Right is always forward.
 
-The punchline hides under a flap — tap it, or drag it upward, to peel it open.
-Space bar works too.
+The punchline hides under a flap. Tap anywhere on the note to peel it open —
+or drag upward if you want to lift it by hand. Space bar works too.
 
 Everything ships in `index.html` — markup, styles, script, and the jokes
 themselves. No build step, no dependencies, no network calls.
@@ -94,12 +94,12 @@ otherwise.
 Already set up: GitHub Pages serves `main` from the repo root, so **pushing to
 `main` deploys**. It takes a minute or two to go live.
 
-**Bump `CACHE` in `sw.js` before every push** (`dadjokes-v5`, and so on).
+**Bump `CACHE` in `sw.js` before every push** (`dadjokes-v6`, and so on).
 The service worker serves cache-first, so without a bump your phone keeps
 serving the old files and it looks like the deploy silently failed.
 
 ```sh
-# edit sw.js: const CACHE = 'dadjokes-v5';
+# edit sw.js: const CACHE = 'dadjokes-v6';
 git commit -am "Whatever changed"
 git push
 ```
