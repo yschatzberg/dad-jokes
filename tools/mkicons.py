@@ -27,8 +27,16 @@ NOTE_HALF = 0.32      # note half-width as a fraction of the canvas
 # (start, end, half-width), which gives round marker caps from the distance
 # test for free.
 _LINE = -0.16                 # vertical centre of the top stroke
+_THICK = 0.215                # half-height of the heavy stroke
+
+# The heavy stroke is a rectangle, not a capped segment - round ends on
+# something this thick read as a pill rather than a pen mark. Ends are pushed
+# out to where the round caps used to reach, so it keeps its width.
+RECTS = [
+    (-0.615, 0.615, _LINE - _THICK, _LINE + _THICK),
+]
+
 BARS = [
-    ((-0.40, _LINE), (0.40, _LINE), 0.215),     # the heavy top stroke
     ((-0.56, 0.44), (0.18, 0.44), 0.038),       # a second, lighter stroke
 ]
 
@@ -51,13 +59,22 @@ KNOCKOUT = [
 
 # Sits high on its own; nudge it to read as centred on the tilted note.
 _OFF_U, _OFF_V = 0.02, 0.03
+RECTS = [(u0 + _OFF_U, u1 + _OFF_U, v0 + _OFF_V, v1 + _OFF_V)
+         for u0, u1, v0, v1 in RECTS]
 BARS = [((ax + _OFF_U, ay + _OFF_V), (bx + _OFF_U, by + _OFF_V), w)
         for (ax, ay), (bx, by), w in BARS]
-# the word needs a touch more than the bar to sit centred inside it, because
-# the bar's round caps add width the endpoints don't account for
-_WORD_U = 0.07
+# the word's own extents aren't symmetric, so it needs its own nudge to sit
+# centred inside the heavy stroke
+_WORD_U = 0.065
 KNOCKOUT = [((ax + _OFF_U + _WORD_U, ay + _OFF_V), (bx + _OFF_U + _WORD_U, by + _OFF_V), w)
             for (ax, ay), (bx, by), w in KNOCKOUT]
+
+
+def _hits_rect(u, v):
+    for u0, u1, v0, v1 in RECTS:
+        if u0 <= u <= u1 and v0 <= v <= v1:
+            return True
+    return False
 
 
 def _hits(strokes, u, v):
@@ -73,8 +90,8 @@ def _hits(strokes, u, v):
 
 
 def on_stroke(u, v):
-    """True where ink should land: inside a bar, but not inside a letter."""
-    if not _hits(BARS, u, v):
+    """True where ink should land: inside a stroke, but not inside a letter."""
+    if not (_hits_rect(u, v) or _hits(BARS, u, v)):
         return False
     return not _hits(KNOCKOUT, u, v)
 
