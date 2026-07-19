@@ -2,8 +2,7 @@
 
 A stack of dad jokes on sticky notes, installable to a phone home screen.
 
-**https://yschatzberg.github.io/dad-jokes/** — see [Installing on a
-phone](#installing-on-a-phone).
+**https://dadjokes.wtf** — see [Installing on a phone](#installing-on-a-phone).
 
 Swipe right for the next joke, left to go back. On desktop the arrows either
 side of the note do the same, as do the arrow keys. Right is always forward.
@@ -22,6 +21,8 @@ themselves. No build step, no dependencies, no network calls.
 | `manifest.webmanifest` | Makes it installable to a home screen |
 | `sw.js` | Precaches the app so it works offline |
 | `icons/` | Home-screen icons (generated, see below) |
+| `THIRD-PARTY-LICENSES.md` | MIT notice for the bundled jokes |
+| `tools/` | Icon generator and joke curation scripts |
 
 ## Running it locally
 
@@ -35,7 +36,7 @@ python3 -m http.server 8777
 
 ## Installing on a phone
 
-**Live at: https://yschatzberg.github.io/dad-jokes/**
+**Live at: https://dadjokes.wtf**
 
 ### iPhone / iPad
 
@@ -120,14 +121,28 @@ flap still covers the whole punchline.
 
 ### Where these came from
 
-The starting 50 are classic dad jokes in wide circulation, written out from
-memory rather than copied from any single source. If you want to grow the set,
-[official_joke_api](https://github.com/15Dkatz/official_joke_api) is **MIT
-licensed** and has ~380 general jokes — permissive enough to bundle, unlike
-most joke APIs, which publish no content licence at all.
+**ids 1–50** are classic dad jokes in wide circulation, written out for this
+project rather than copied from any single source.
 
-Bundle them into `index.html` rather than fetching at runtime. A network call
-would break offline support, which is most of the point of installing this.
+**ids 51–285** are curated from
+[official_joke_api](https://github.com/15Dkatz/official_joke_api), which is MIT
+licensed — see [THIRD-PARTY-LICENSES.md](THIRD-PARTY-LICENSES.md), which
+reproduces the copyright notice the licence requires.
+
+Most joke APIs publish no content licence at all. `icanhazdadjoke` has more
+jokes but states no terms of use and no content licence, which is fine for
+personal use and murky for anything you ship.
+
+Of 451 source jokes, 285 - 50 = 235 made it in. The rest were dropped as
+programming/knock-knock jokes, too long for the note, near-duplicates, or not
+family-friendly. `tools/curate_jokes.py` does the filtering and prints
+candidates; `tools/merge_jokes.py` takes a hand-picked list of indices and
+rewrites the `JOKES` block. Filtering alone isn't enough — the final pick was
+made by reading all 333 survivors.
+
+They're bundled into `index.html` rather than fetched at runtime, because a
+network call would break offline support, which is most of the point of
+installing this.
 
 ## Sharing
 
