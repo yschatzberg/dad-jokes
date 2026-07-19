@@ -24,6 +24,7 @@ themselves. No build step, no dependencies, no network calls.
 | `sw.js` | Precaches the app so it works offline |
 | `icons/` | Home-screen icons (generated, see below) |
 | `THIRD-PARTY-LICENSES.md` | MIT notice for the bundled jokes |
+| `ROADMAP.md` | Feature ideas not built yet, and what each would need |
 | `tools/` | Icon generator, joke curation, share-page builder |
 | `j/` | Per-joke link-preview pages (generated) |
 
