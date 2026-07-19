@@ -20,51 +20,63 @@ TILT = math.radians(-8.0)
 COS, SIN = math.cos(-TILT), math.sin(-TILT)
 
 NOTE_HALF = 0.32      # note half-width as a fraction of the canvas
-STROKE = 0.058        # marker half-width, in note-local units
 
-# "WTF" as stroke paths in note-local coords: u,v both run -1..1, v downward.
-STROKES = [
-    # W - one continuous zig-zag, the way you'd actually write it
-    ((-0.70, -0.32), (-0.585, 0.32)),
-    ((-0.585, 0.32), (-0.47, -0.06)),
-    ((-0.47, -0.06), (-0.355, 0.32)),
-    ((-0.355, 0.32), (-0.24, -0.32)),
-    # T
-    ((-0.16, -0.32), (0.18, -0.32)),
-    ((0.01, -0.32), (0.01, 0.32)),
-    # F
-    ((0.28, -0.32), (0.28, 0.32)),
-    ((0.28, -0.32), (0.62, -0.32)),
-    ((0.28, 0.01), (0.54, 0.01)),
+# Two pen strokes on the note. The top one is heavy enough to read WTF out of
+# its middle - the letters are knocked back to paper rather than drawn in ink.
+# Coords are note-local, u and v run -1..1 with v downward; entries are
+# (start, end, half-width), which gives round marker caps from the distance
+# test for free.
+_LINE = -0.16                 # vertical centre of the top stroke
+BARS = [
+    ((-0.40, _LINE), (0.40, _LINE), 0.215),     # the heavy top stroke
+    ((-0.56, 0.44), (0.18, 0.44), 0.038),       # a second, lighter stroke
 ]
 
-# Nudge the word to sit optically centred on the tilted note.
-OFFSET_U, OFFSET_V = 0.045, 0.025
-STROKES = [((ax + OFFSET_U, ay + OFFSET_V), (bx + OFFSET_U, by + OFFSET_V))
-           for (ax, ay), (bx, by) in STROKES]
+_LT, _LB = -0.325, 0.01       # letter extents, centred in the heavy stroke
+_NIB = 0.035                  # letter stroke half-width
+KNOCKOUT = [
+    # W - one continuous zig-zag, the way you'd actually write it
+    ((-0.42, _LT), (-0.365, _LB), _NIB),
+    ((-0.365, _LB), (-0.31, -0.21), _NIB),
+    ((-0.31, -0.21), (-0.255, _LB), _NIB),
+    ((-0.255, _LB), (-0.20, _LT), _NIB),
+    # T
+    ((-0.15, _LT), (0.03, _LT), _NIB),
+    ((-0.06, _LT), (-0.06, _LB), _NIB),
+    # F
+    ((0.11, _LT), (0.11, _LB), _NIB),
+    ((0.11, _LT), (0.29, _LT), _NIB),
+    ((0.11, -0.16), (0.23, -0.16), _NIB),
+]
 
-# Skip the segment maths everywhere the letters can't reach.
-PAD = STROKE + 0.02
-BOX = (
-    min(min(a[0], b[0]) for a, b in STROKES) - PAD,
-    max(max(a[0], b[0]) for a, b in STROKES) + PAD,
-    min(min(a[1], b[1]) for a, b in STROKES) - PAD,
-    max(max(a[1], b[1]) for a, b in STROKES) + PAD,
-)
+# Sits high on its own; nudge it to read as centred on the tilted note.
+_OFF_U, _OFF_V = 0.02, 0.03
+BARS = [((ax + _OFF_U, ay + _OFF_V), (bx + _OFF_U, by + _OFF_V), w)
+        for (ax, ay), (bx, by), w in BARS]
+# the word needs a touch more than the bar to sit centred inside it, because
+# the bar's round caps add width the endpoints don't account for
+_WORD_U = 0.07
+KNOCKOUT = [((ax + _OFF_U + _WORD_U, ay + _OFF_V), (bx + _OFF_U + _WORD_U, by + _OFF_V), w)
+            for (ax, ay), (bx, by), w in KNOCKOUT]
 
 
-def on_stroke(u, v):
-    if not (BOX[0] <= u <= BOX[1] and BOX[2] <= v <= BOX[3]):
-        return False
-    for (ax, ay), (bx, by) in STROKES:
+def _hits(strokes, u, v):
+    for (ax, ay), (bx, by), w in strokes:
         vx, vy = bx - ax, by - ay
         wx, wy = u - ax, v - ay
         L2 = vx * vx + vy * vy
         t = 0.0 if L2 == 0 else max(0.0, min(1.0, (wx * vx + wy * vy) / L2))
         dx, dy = wx - t * vx, wy - t * vy
-        if dx * dx + dy * dy <= STROKE * STROKE:
+        if dx * dx + dy * dy <= w * w:
             return True
     return False
+
+
+def on_stroke(u, v):
+    """True where ink should land: inside a bar, but not inside a letter."""
+    if not _hits(BARS, u, v):
+        return False
+    return not _hits(KNOCKOUT, u, v)
 
 
 def scene(x, y, n):
