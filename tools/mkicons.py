@@ -26,18 +26,18 @@ NOTE_HALF = 0.32      # note half-width as a fraction of the canvas
 # Coords are note-local, u and v run -1..1 with v downward; entries are
 # (start, end, half-width), which gives round marker caps from the distance
 # test for free.
-_LINE = -0.16                 # vertical centre of the top stroke
-_THICK = 0.215                # half-height of the heavy stroke
+_LINE = -0.16                 # vertical centre of the heavy top stroke
+_THICK = 0.215                # its half-height
+_LINE2 = 0.36                 # vertical centre of the second stroke
+_THICK2 = _THICK / 2          # half as thick as the first
+_END = 0.615                  # where the top stroke ends
 
-# The heavy stroke is a rectangle, not a capped segment - round ends on
-# something this thick read as a pill rather than a pen mark. Ends are pushed
-# out to where the round caps used to reach, so it keeps its width.
+# Both strokes are rectangles rather than capped segments - round ends on
+# something this thick read as a pill rather than a pen mark. The top one's
+# ends sit where its round caps used to reach, so it kept its width.
 RECTS = [
-    (-0.615, 0.615, _LINE - _THICK, _LINE + _THICK),
-]
-
-BARS = [
-    ((-0.56, 0.44), (0.18, 0.44), 0.038),       # a second, lighter stroke
+    (-_END, _END, _LINE - _THICK, _LINE + _THICK),
+    (-0.53, 0.53, _LINE2 - _THICK2, _LINE2 + _THICK2),
 ]
 
 _LT, _LB = -0.325, 0.01       # letter extents, centred in the heavy stroke
@@ -58,11 +58,9 @@ KNOCKOUT = [
 ]
 
 # Sits high on its own; nudge it to read as centred on the tilted note.
-_OFF_U, _OFF_V = 0.02, 0.03
+_OFF_U, _OFF_V = 0.02, -0.02
 RECTS = [(u0 + _OFF_U, u1 + _OFF_U, v0 + _OFF_V, v1 + _OFF_V)
          for u0, u1, v0, v1 in RECTS]
-BARS = [((ax + _OFF_U, ay + _OFF_V), (bx + _OFF_U, by + _OFF_V), w)
-        for (ax, ay), (bx, by), w in BARS]
 # the word's own extents aren't symmetric, so it needs its own nudge to sit
 # centred inside the heavy stroke
 _WORD_U = 0.065
@@ -91,7 +89,7 @@ def _hits(strokes, u, v):
 
 def on_stroke(u, v):
     """True where ink should land: inside a stroke, but not inside a letter."""
-    if not (_hits_rect(u, v) or _hits(BARS, u, v)):
+    if not _hits_rect(u, v):
         return False
     return not _hits(KNOCKOUT, u, v)
 
