@@ -35,9 +35,11 @@ _END = 0.615                  # where the top stroke ends
 # Both strokes are rectangles rather than capped segments - round ends on
 # something this thick read as a pill rather than a pen mark. The top one's
 # ends sit where its round caps used to reach, so it kept its width.
+_LEN2 = 0.86                  # second stroke's length, as a fraction of the first
 RECTS = [
     (-_END, _END, _LINE - _THICK, _LINE + _THICK),
-    (-0.53, 0.53, _LINE2 - _THICK2, _LINE2 + _THICK2),
+    # shares a left edge with the stroke above it, and runs short on the right
+    (-_END, -_END + _LEN2 * 2 * _END, _LINE2 - _THICK2, _LINE2 + _THICK2),
 ]
 
 _LT, _LB = -0.325, 0.01       # letter extents, centred in the heavy stroke
