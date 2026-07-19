@@ -1023,11 +1023,13 @@
 
   const currentJoke = () => (index < deck.length ? deck[index] : null);
 
+  /* Share the per-joke page, not ?j=. Both open the same joke, but only the
+     static page carries Open Graph tags a link crawler can read, so only it
+     previews with this joke's setup. ?j= still works for links already sent. */
   function linkFor(joke) {
-    const url = new URL(window.location.href);
-    url.hash = '';
-    url.search = '?j=' + joke.id;
-    return url.toString();
+    let root = window.location.pathname.replace(/index\.html?$/, '');
+    if (!root.endsWith('/')) root += '/';
+    return window.location.origin + root + 'j/' + joke.id + '/';
   }
 
   async function shareCurrent() {

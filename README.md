@@ -24,7 +24,8 @@ themselves. No build step, no dependencies, no network calls.
 | `sw.js` | Precaches the app so it works offline |
 | `icons/` | Home-screen icons (generated, see below) |
 | `THIRD-PARTY-LICENSES.md` | MIT notice for the bundled jokes |
-| `tools/` | Icon generator and joke curation scripts |
+| `tools/` | Icon generator, joke curation, share-page builder |
+| `j/` | Per-joke link-preview pages (generated) |
 
 ## Running it locally
 
@@ -96,12 +97,12 @@ otherwise.
 Already set up: GitHub Pages serves `main` from the repo root, so **pushing to
 `main` deploys**. It takes a minute or two to go live.
 
-**Bump `CACHE` in `sw.js` before every push** (`dadjokes-v8`, and so on).
+**Bump `CACHE` in `sw.js` before every push** (`dadjokes-v9`, and so on).
 The service worker serves cache-first, so without a bump your phone keeps
 serving the old files and it looks like the deploy silently failed.
 
 ```sh
-# edit sw.js: const CACHE = 'dadjokes-v8';
+# edit sw.js: const CACHE = 'dadjokes-v9';
 git commit -am "Whatever changed"
 git push
 ```
@@ -161,14 +162,29 @@ a refresh doesn't snap back to it.
 
 ### The link preview card
 
-Open Graph tags in `index.html` control the card iMessage, Slack, and friends
-show under the message. **Never put joke text in them.** Link crawlers don't
-run JavaScript, so they read the same static markup for every `?j=` value —
-whatever is in those tags is what *every* shared joke would display.
+Share links point at `https://dadjokes.wtf/j/27/` — a real file per joke, in
+`j/<id>/index.html`. Each carries its own Open Graph tags, so the preview card
+shows **that joke's setup**, then redirects to the app.
 
-Making the card itself show each joke's setup would mean pre-generating one
-small HTML file per joke, each with its own `og:description`, since a static
-host can't vary a response by query string.
+This exists because a static host can't vary a response by query string, and
+link crawlers don't run JavaScript. A shared `/?j=27` would return the same
+generic markup as every other joke, so every card would look identical.
+
+The redirect is JavaScript, not a `<meta refresh>`, on purpose: crawlers stop
+at the tags and read them, while humans bounce straight to the app. There's a
+`<noscript>` link for the no-JS case.
+
+**Old `/?j=27` links still work** and are still what the app itself uses
+internally, so anything already sent keeps working.
+
+**Re-run the generator whenever the joke list changes:**
+
+```sh
+python3 tools/build_share_pages.py
+```
+
+It rebuilds `j/` from scratch, so removed jokes don't leave orphan pages, and
+it aborts if a punchline ever ends up in a preview page.
 
 ## Icons
 
