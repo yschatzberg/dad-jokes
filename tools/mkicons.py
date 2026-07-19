@@ -1,8 +1,7 @@
-"""Generate the dadjokes.wtf app icons: WTF marker-written on a sticky note.
+"""Generate the dadjokes.wtf app icons: a tilted yellow note on a dark desk.
 
 Pure stdlib - no PIL on this machine - so it rasterises a scene function and
-writes the PNG chunks by hand. Letters are stroke paths measured by distance
-to a line segment, which gives round marker-pen caps for free.
+writes the PNG chunks by hand.
 
 Renders once at high resolution and downsamples, so the antialiasing comes
 from area-averaging rather than per-pixel supersampling.
@@ -21,79 +20,22 @@ COS, SIN = math.cos(-TILT), math.sin(-TILT)
 
 NOTE_HALF = 0.32      # note half-width as a fraction of the canvas
 
-# Two pen strokes on the note. The top one is heavy enough to read WTF out of
-# its middle - the letters are knocked back to paper rather than drawn in ink.
-# Coords are note-local, u and v run -1..1 with v downward; entries are
-# (start, end, half-width), which gives round marker caps from the distance
-# test for free.
-_LINE = -0.16                 # vertical centre of the heavy top stroke
-_THICK = 0.215                # its half-height
-_LINE2 = 0.36                 # vertical centre of the second stroke
-_THICK2 = _THICK / 2          # half as thick as the first
-_END = 0.615                  # where the top stroke ends
-
-# Both strokes are rectangles rather than capped segments - round ends on
-# something this thick read as a pill rather than a pen mark. The top one's
-# ends sit where its round caps used to reach, so it kept its width.
-_LEN2 = 0.86                  # second stroke's length, as a fraction of the first
-RECTS = [
-    (-_END, _END, _LINE - _THICK, _LINE + _THICK),
-    # shares a left edge with the stroke above it, and runs short on the right
-    (-_END, -_END + _LEN2 * 2 * _END, _LINE2 - _THICK2, _LINE2 + _THICK2),
+# The original note: three ink bars standing in for handwriting - two thin
+# lines and a heavier one - all sharing a left margin. Coords are note-local,
+# u and v run -1..1 with v downward, as (u0, u1, v0, v1) rectangles.
+BARS = [
+    (-0.62, 0.40, -0.32, -0.22),
+    (-0.62, 0.14, -0.16, -0.06),
+    (-0.62, 0.52, 0.08, 0.25),
 ]
-
-_LT, _LB = -0.325, 0.01       # letter extents, centred in the heavy stroke
-_NIB = 0.035                  # letter stroke half-width
-KNOCKOUT = [
-    # W - one continuous zig-zag, the way you'd actually write it
-    ((-0.42, _LT), (-0.365, _LB), _NIB),
-    ((-0.365, _LB), (-0.31, -0.21), _NIB),
-    ((-0.31, -0.21), (-0.255, _LB), _NIB),
-    ((-0.255, _LB), (-0.20, _LT), _NIB),
-    # T
-    ((-0.15, _LT), (0.03, _LT), _NIB),
-    ((-0.06, _LT), (-0.06, _LB), _NIB),
-    # F
-    ((0.11, _LT), (0.11, _LB), _NIB),
-    ((0.11, _LT), (0.29, _LT), _NIB),
-    ((0.11, -0.16), (0.23, -0.16), _NIB),
-]
-
-# Sits high on its own; nudge it to read as centred on the tilted note.
-_OFF_U, _OFF_V = 0.02, -0.02
-RECTS = [(u0 + _OFF_U, u1 + _OFF_U, v0 + _OFF_V, v1 + _OFF_V)
-         for u0, u1, v0, v1 in RECTS]
-# the word's own extents aren't symmetric, so it needs its own nudge to sit
-# centred inside the heavy stroke
-_WORD_U = 0.065
-KNOCKOUT = [((ax + _OFF_U + _WORD_U, ay + _OFF_V), (bx + _OFF_U + _WORD_U, by + _OFF_V), w)
-            for (ax, ay), (bx, by), w in KNOCKOUT]
-
-
-def _hits_rect(u, v):
-    for u0, u1, v0, v1 in RECTS:
-        if u0 <= u <= u1 and v0 <= v <= v1:
-            return True
-    return False
-
-
-def _hits(strokes, u, v):
-    for (ax, ay), (bx, by), w in strokes:
-        vx, vy = bx - ax, by - ay
-        wx, wy = u - ax, v - ay
-        L2 = vx * vx + vy * vy
-        t = 0.0 if L2 == 0 else max(0.0, min(1.0, (wx * vx + wy * vy) / L2))
-        dx, dy = wx - t * vx, wy - t * vy
-        if dx * dx + dy * dy <= w * w:
-            return True
-    return False
 
 
 def on_stroke(u, v):
-    """True where ink should land: inside a stroke, but not inside a letter."""
-    if not _hits_rect(u, v):
-        return False
-    return not _hits(KNOCKOUT, u, v)
+    """True where ink should land."""
+    for u0, u1, v0, v1 in BARS:
+        if u0 <= u <= u1 and v0 <= v <= v1:
+            return True
+    return False
 
 
 def scene(x, y, n):
