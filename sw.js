@@ -5,7 +5,7 @@
 
    Bump CACHE whenever you deploy, or the old files keep being served. */
 
-const CACHE = 'dadjokes-v17';
+const CACHE = 'dadjokes-v18';
 
 const ASSETS = [
   './',

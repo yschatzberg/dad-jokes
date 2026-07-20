@@ -145,21 +145,6 @@
     font-variant-numeric: tabular-nums;
   }
 
-  .hint {
-    margin-left: auto;
-    font-size: 10px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--chrome-muted);
-    opacity: 0.8;
-    text-align: right;
-  }
-
-  /* the hint is the first thing to go when the footer gets tight */
-  @media (max-width: 400px) {
-    .hint { display: none; }
-  }
-
   /* ---------- stage: arrow, stack, arrow ---------- */
 
   .stage {
@@ -573,7 +558,6 @@
   <button class="btn" id="favViewBtn" aria-pressed="false">
     Saved <span class="tally" id="favCount" hidden></span>
   </button>
-  <span class="hint">Double-tap to save</span>
 </footer>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -905,6 +889,7 @@
      another device, and clearing site data clears them. */
 
   const FAVES_KEY = 'dadjokes.faves.v1';
+  const LEARNED_KEY = 'dadjokes.savedOnce.v1';   // has the user ever saved a joke
   let faves = new Set();
 
   function loadFaves() {
@@ -941,8 +926,28 @@
     if (nowOn) faves.add(id);
     else faves.delete(id);
     if (!saveFaves()) toast("Couldn't save - storage is unavailable");
+    if (nowOn) markLearnedSave();   // they've saved; the double-tap hint retires
     syncFaveUI();
     return nowOn;
+  }
+
+  /* First-run hint: teach the double-tap gesture (the footer heart is obvious,
+     but double-tapping the note isn't) exactly until the user saves once. */
+  function hasLearnedSave() {
+    try { return localStorage.getItem(LEARNED_KEY) === '1'; } catch (err) { return true; }
+  }
+
+  function markLearnedSave() {
+    try { localStorage.setItem(LEARNED_KEY, '1'); } catch (err) { /* fine */ }
+  }
+
+  function maybeShowSaveHint() {
+    // an existing user with saves already knows; don't nag them
+    if (faves.size > 0) { markLearnedSave(); return; }
+    if (hasLearnedSave()) return;
+    setTimeout(() => {
+      if (!hasLearnedSave()) toast('Double-tap a joke to save it ♥', 3600);
+    }, 900);
   }
 
   /* the footer heart (state of the current joke) and the saved count */
@@ -996,11 +1001,11 @@
   const tiltFor = (position) => TILTS[(position - 1) % TILTS.length];
 
   let toastTimer = null;
-  function toast(msg) {
+  function toast(msg, ms = 2200) {
     toastEl.textContent = msg;
     toastEl.classList.add('show');
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2200);
+    toastTimer = setTimeout(() => toastEl.classList.remove('show'), ms);
   }
 
   /* ---------- notes ---------- */
@@ -1418,6 +1423,7 @@
 
   faves = loadFaves();
   start(sharedId());
+  maybeShowSaveHint();
 </script>
 
 <script>
