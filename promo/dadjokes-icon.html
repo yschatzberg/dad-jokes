@@ -1,0 +1,71 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1024px; height: 1024px; overflow: hidden; }
+  body {
+    position: relative;
+    background-color: #17140F;
+    background-image:
+      radial-gradient(120% 90% at 50% 22%, transparent 40%, #0C0A07 100%),
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/><feColorMatrix type='saturate' values='0'/></filter><rect width='140' height='140' filter='url(%23n)' opacity='0.05'/></svg>");
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Marker Felt", "Chalkboard SE", sans-serif;
+  }
+  .stack { position: relative; width: 830px; height: 830px; }
+  .note {
+    position: absolute;
+    inset: 0;
+    border-radius: 8px;
+    box-shadow: 0 34px 66px -22px rgba(0,0,0,0.62);
+  }
+  .peek-blue { background: #7FD1EF; transform: rotate(5deg) translate(30px, 18px); }
+  .peek-pink { background: #F98CC0; transform: rotate(-6deg) translate(-34px, 26px); }
+  .main {
+    background: #FBE94F;
+    transform: rotate(-2.5deg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 48px;
+    overflow: hidden;
+  }
+  .main::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 22%;
+    background: linear-gradient(rgba(0,0,0,0.05), rgba(0,0,0,0));
+  }
+  .title {
+    font-size: 132px;
+    line-height: 1;
+    color: #2B2724;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+  }
+  .rule {
+    width: 300px;
+    height: 12px;
+    background: #C0392B;
+    border-radius: 7px;
+    transform: rotate(-1.4deg);
+    margin-top: 34px;
+  }
+</style>
+</head>
+<body>
+  <div class="stack">
+    <div class="note peek-blue"></div>
+    <div class="note peek-pink"></div>
+    <div class="note main">
+      <div class="title">dadjokes.wtf</div>
+      <div class="rule"></div>
+    </div>
+  </div>
+</body>
+</html>
