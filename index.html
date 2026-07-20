@@ -880,7 +880,8 @@
   const PEEL_TRAVEL = 110;   // px of finger travel for a full peel
   const SWIPE_MIN = 95;      // px before a horizontal drag counts as a swipe
   const AXIS_LOCK = 8;       // px before we decide peel-vs-navigate
-  const DOUBLE_MS = 300;     // two taps within this count as a double-tap
+  const DOUBLE_MS = 260;     // double-tap window; also how long a single-tap
+                             // peel waits to be sure no second tap is coming
 
   const stack = document.getElementById('stack');
   const countEl = document.getElementById('count');
@@ -1146,7 +1147,7 @@
     const flap = note.querySelector('.flap');
     let startX = 0, startY = 0, dx = 0, dy = 0;
     let dragging = false, pointerId = null, axis = null, onFlap = false;
-    let lastTapAt = 0;   // for double-tap detection, per live note
+    let peelTimer = null;   // a pending single-tap peel, held open for a double-tap
 
     const onDown = (e) => {
       pointerId = e.pointerId;
@@ -1203,19 +1204,23 @@
         return;
       }
 
-      // Never moved: a tap. A second tap in quick succession is a double-tap,
-      // which saves the joke (like double-tapping a photo); a lone tap peels.
-      // Peel is handled here rather than in the click listener because pointer
+      // Never moved: a tap. To keep a double-tap (save) from ever flipping the
+      // punchline, the peel is held for the double-tap window instead of firing
+      // at once: a second tap cancels the pending peel and saves instead, so
+      // the flap never moves on a double-tap. A lone tap peels when the timer
+      // expires. Handled here, not in the click listener, because pointer
       // capture retargets the click away to the note.
       if (axis === null) {
         suppressClick = true;
-        const now = Date.now();
-        if (now - lastTapAt < DOUBLE_MS) {
-          lastTapAt = 0;          // consume, so a third quick tap starts fresh
-          heartCurrent();         // first tap already peeled; pop over it
+        if (peelTimer) {
+          clearTimeout(peelTimer);
+          peelTimer = null;
+          heartCurrent();         // double-tap: save, leave the flap untouched
         } else {
-          lastTapAt = now;
-          togglePeel(note);
+          peelTimer = setTimeout(() => {
+            peelTimer = null;
+            if (note.isConnected && note.classList.contains('live')) togglePeel(note);
+          }, DOUBLE_MS);
         }
       }
     };
