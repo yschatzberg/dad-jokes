@@ -12,9 +12,12 @@ costs, and data to look after.
 
 ### 1. Like / favourite a joke — DONE (2026-07-18)
 
-Shipped. A star on each note saves it to `localStorage` (keyed by joke id), the
-**Saved** button opens a filtered view, `s` is the keyboard shortcut. On-device
-only, as planned — see the "Saved jokes" section of the README.
+Shipped. Save a joke with the footer heart, a double-tap on the note, or the
+`s` key; it's stored in `localStorage` keyed by joke id, and the **Saved**
+button opens a filtered view. On-device only, as planned — see the "Saved
+jokes" section of the README. (An in-note star was the first attempt, but the
+note captures the pointer, so clicks never reached it; the heart lives in the
+footer, outside the note, for that reason.)
 
 ### 4. Guess the punchline
 
