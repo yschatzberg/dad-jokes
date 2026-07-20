@@ -1291,6 +1291,68 @@
     start(null);
   }
 
+  /* ---------- shuffle animation ----------
+     Toss the visible notes out, then drop a fresh stack in - the tactile
+     "cards being shuffled" read. Reduced motion skips straight to the rebuild. */
+  let shuffling = false;
+
+  function doShuffle() {
+    if (shuffling) return;
+    history.replaceState(null, '', window.location.pathname);
+
+    const current = [...stack.querySelectorAll('.note:not(.flung)')];
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce || current.length === 0) { start(null); return; }
+
+    shuffling = true;
+    shuffleBtn.disabled = true;
+
+    // fling the current notes outward, alternating sides
+    current.forEach((n, i) => {
+      n.classList.remove('live');   // no dragging a note that's on its way out
+      n.style.zIndex = String(40 - i);
+      n.style.transition = 'transform 260ms cubic-bezier(.4,0,.7,1), opacity 240ms ease';
+      const dir = i % 2 === 0 ? 1 : -1;
+      n.style.transform =
+        `translate(${dir * (150 + i * 26)}px, ${-30 - i * 22}px) rotate(${dir * (16 + i * 7)}deg)`;
+      n.style.opacity = '0';
+    });
+
+    setTimeout(() => {
+      current.forEach((n) => n.remove());
+      start(null);        // rebuild the shuffled deck at index 0
+      introStack();       // and settle the new notes in
+      setTimeout(() => { shuffling = false; shuffleBtn.disabled = false; }, 480);
+    }, 200);
+  }
+
+  /* drop the freshly built notes into place, back-to-front so the live note
+     lands last, on top */
+  function introStack() {
+    const notes = [...stack.querySelectorAll('.note:not(.flung)')];
+    notes.forEach((n) => {
+      const dir = n.classList.contains('live') ? -1 : 1;
+      n.dataset.rest = n.style.transform;      // buildNote's resting transform
+      n.style.transition = 'none';
+      n.style.transform = `translate(${dir * 80}px, -130px) rotate(${dir * 12}deg)`;
+      n.style.opacity = '0';
+    });
+    void stack.offsetWidth;                     // commit the from-state
+    notes.forEach((n, i) => {
+      const delay = i * 55;                     // i=0 is the deepest note
+      n.style.transition =
+        `transform 400ms cubic-bezier(.2,.85,.3,1) ${delay}ms, opacity 320ms ease ${delay}ms`;
+      n.style.transform = n.dataset.rest;
+      n.style.opacity = '';
+      n.addEventListener('transitionend', function done(e) {
+        if (e.propertyName !== 'transform') return;
+        n.style.transition = '';                // hand transforms back to CSS/drag
+        delete n.dataset.rest;
+        n.removeEventListener('transitionend', done);
+      });
+    });
+  }
+
   function sharedId() {
     const raw = new URLSearchParams(window.location.search).get('j');
     // digits only: parseInt would read "1e3" as 1 and open a joke nobody linked
@@ -1303,11 +1365,7 @@
   nextBtn.addEventListener('click', () => go(1));
   shareBtn.addEventListener('click', shareCurrent);
 
-  shuffleBtn.addEventListener('click', () => {
-    // dropping ?j stops a refresh from snapping back to the shared joke
-    history.replaceState(null, '', window.location.pathname);
-    start(null);
-  });
+  shuffleBtn.addEventListener('click', doShuffle);
 
   favViewBtn.addEventListener('click', () => {
     setMode(mode === 'faves' ? 'all' : 'faves');
@@ -1322,7 +1380,7 @@
     const actionBtn = e.target.closest('[data-action]');
     if (actionBtn) {
       const act = actionBtn.getAttribute('data-action');
-      if (act === 'shuffle') { history.replaceState(null, '', window.location.pathname); start(null); }
+      if (act === 'shuffle') doShuffle();
       else if (act === 'back') setMode('all');
       return;
     }
