@@ -522,6 +522,36 @@
   .about-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   .about-btn svg { width: 16px; height: 16px; fill: currentColor; }
 
+  /* When a donation link is configured, the header trigger becomes a Donate
+     pill. Filled canary + dark ink reads in both themes, unlike a yellow
+     outline that vanishes on the light kraft desk. */
+  .about-btn.donate {
+    width: auto;
+    height: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    background: #FBE94F;
+    border-color: #FBE94F;
+    color: #2B2724;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+
+  .about-btn.donate:hover { background: #F5E33C; border-color: #F5E33C; }
+  .about-btn.donate svg {
+    width: 14px;
+    height: 14px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.9;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
   .about-overlay {
     position: fixed;
     inset: 0;
@@ -647,12 +677,12 @@
 
 <header>
   <h1>dadjokes.wtf</h1>
-  <span class="count" id="count"></span>
   <button class="about-btn" id="aboutBtn" aria-label="About">
     <svg viewBox="0 0 24 24" aria-hidden="true">
       <circle cx="5" cy="12" r="1.7" /><circle cx="12" cy="12" r="1.7" /><circle cx="19" cy="12" r="1.7" />
     </svg>
   </button>
+  <span class="count" id="count"></span>
 </header>
 
 <div class="stage">
@@ -1406,10 +1436,18 @@
   /* ---------- about / support ---------- */
 
   function setupSupport() {
-    if (!SUPPORT_URL) return;   // no link yet: leave the support block hidden
+    if (!SUPPORT_URL) return;   // no link yet: header stays "···", support hidden
     const link = document.getElementById('coffeeLink');
     link.href = SUPPORT_URL;
     document.getElementById('aboutSupport').hidden = false;
+    // upgrade the header trigger from the subtle "···" to a Donate pill
+    aboutBtn.classList.add('donate');
+    aboutBtn.setAttribute('aria-label', 'Donate');
+    aboutBtn.innerHTML =
+      '<svg viewBox="0 0 24 24" aria-hidden="true">'
+      + '<path d="M4 8h13v6a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4z" />'
+      + '<path d="M17 9h2a2.5 2.5 0 0 1 0 5h-1.5" />'
+      + '<path d="M8 3.5v1.5M12 3.5v1.5" /></svg><span>Donate</span>';
   }
 
   let aboutLastFocus = null;

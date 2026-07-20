@@ -178,15 +178,20 @@ never nags a returning user.
 
 ## About / support
 
-The "···" button in the header opens an About sheet: a one-line description,
+A button beside the wordmark opens an About sheet: a one-line description,
 the joke credits (satisfying the MIT notice where people can actually see it),
 and an optional donation link.
 
-The donation link is off by default. Set `SUPPORT_URL` near the top of the
-script in `index.html` to your Ko-fi / GitHub Sponsors / Stripe link and the
-"Buy me a coffee" block appears; leave it `''` and the sheet just shows the
-description and credits. If you use a processor other than Ko-fi, update the
-"Handled by …" line in the About markup.
+The donation link is off by default, and the header button reflects that: with
+`SUPPORT_URL` empty it's a subtle "···" (opens the About sheet with description
+and credits only); set `SUPPORT_URL` near the top of the script in `index.html`
+to your Ko-fi / GitHub Sponsors / Stripe link and the same button becomes a
+canary "Donate" pill while the sheet's "Buy me a coffee" block switches on. So
+nothing ever ships as a Donate button pointing at a dead page. If you use a
+processor other than Ko-fi, update the "Handled by …" line in the About markup.
+
+The pill is filled canary with dark ink, not a yellow outline, so it stays
+legible on the light kraft desk as well as the dark one.
 
 It's a plain link out to a hosted payment page — no backend, no card data ever
 touches this app, so the static-site, offline-first model is unchanged. The
