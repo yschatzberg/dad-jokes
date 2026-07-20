@@ -244,6 +244,8 @@
   .note > * { position: relative; z-index: 1; }
 
   .note.behind { pointer-events: none; }
+  /* a note flying away shouldn't intercept clicks meant for what's underneath */
+  .note.flung { pointer-events: none; }
   .note.live { cursor: grab; }
   .note.live.dragging { cursor: grabbing; transition: none; }
 
@@ -366,55 +368,46 @@
     z-index: 4;
   }
 
-  /* ---------- favourite star ---------- */
+  /* ---------- double-tap heart, popped onto the note ---------- */
 
-  .fav {
+  .heart-pop {
     position: absolute;
-    top: 7px;
-    left: 11px;
-    width: 30px;
-    height: 30px;
-    display: grid;
-    place-items: center;
-    padding: 0;
-    border: 0;
-    background: none;
-    color: var(--ink);
-    cursor: pointer;
-    opacity: 0.3;
-    z-index: 4;
-    transition: opacity 140ms ease, transform 180ms cubic-bezier(.2,.8,.3,1);
+    left: 50%;
+    top: 50%;
+    width: 34cqw;
+    height: 34cqw;
+    transform: translate(-50%, -50%) scale(0.3);
+    color: var(--accent);
+    pointer-events: none;
+    opacity: 0;
+    z-index: 5;
   }
 
-  .fav svg {
-    width: 19px;
-    height: 19px;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.9;
-    stroke-linejoin: round;
+  .heart-pop svg { width: 100%; height: 100%; fill: currentColor; }
+
+  .heart-pop.go { animation: heart-pop 620ms cubic-bezier(.2, .8, .3, 1) forwards; }
+
+  @keyframes heart-pop {
+    0%   { transform: translate(-50%, -50%) scale(0.3);  opacity: 0; }
+    30%  { transform: translate(-50%, -50%) scale(1.05); opacity: 0.95; }
+    100% { transform: translate(-50%, -50%) scale(1.5);  opacity: 0; }
   }
-
-  .fav:hover { opacity: 0.55; }
-  .fav:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; border-radius: 3px; }
-
-  .note.faved .fav { opacity: 0.9; }
-  .note.faved .fav svg { fill: currentColor; }
-
-  /* a small kick when it's marked, so the tap registers */
-  .note.faved .fav { transform: scale(1.06); }
 
   @media (prefers-reduced-motion: reduce) {
-    .fav { transition: none; }
+    .heart-pop.go { animation-duration: 1ms; }
   }
 
   /* ---------- end of stack ---------- */
 
-  .done {
+  /* .note.done, not .done: it has to out-specify .note.behind, which sets
+     pointer-events: none. A message note is 'behind' so it can't be dragged,
+     but its button still has to be clickable. */
+  .note.done {
     text-align: center;
     align-items: center;
     justify-content: center;
     gap: 14px;
+    pointer-events: auto;
   }
 
   .done h2 {
@@ -467,6 +460,33 @@
   .btn .tally {
     font-variant-numeric: tabular-nums;
     opacity: 0.65;
+  }
+
+  /* the heart that saves the current joke - icon only, compact */
+  .btn.heart {
+    padding: 9px 11px;
+    display: grid;
+    place-items: center;
+  }
+
+  .btn.heart svg {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linejoin: round;
+    transition: transform 180ms cubic-bezier(.2, .8, .3, 1);
+  }
+
+  #favBtn[aria-pressed="true"] {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+
+  #favBtn[aria-pressed="true"] svg {
+    fill: currentColor;
+    transform: scale(1.12);
   }
 
   .done .btn {
@@ -543,12 +563,17 @@
 </div>
 
 <footer>
+  <button class="btn heart" id="favBtn" aria-pressed="false" aria-label="Save this joke">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 20.3 4.6 12.9a4.6 4.6 0 0 1 6.5-6.5l.9.9.9-.9a4.6 4.6 0 0 1 6.5 6.5Z" />
+    </svg>
+  </button>
   <button class="btn" id="shuffleBtn">Shuffle</button>
   <button class="btn" id="shareBtn">Share</button>
   <button class="btn" id="favViewBtn" aria-pressed="false">
     Saved <span class="tally" id="favCount" hidden></span>
   </button>
-  <span class="hint">Tap the note for the punchline</span>
+  <span class="hint">Double-tap to save</span>
 </footer>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -855,6 +880,7 @@
   const PEEL_TRAVEL = 110;   // px of finger travel for a full peel
   const SWIPE_MIN = 95;      // px before a horizontal drag counts as a swipe
   const AXIS_LOCK = 8;       // px before we decide peel-vs-navigate
+  const DOUBLE_MS = 300;     // two taps within this count as a double-tap
 
   const stack = document.getElementById('stack');
   const countEl = document.getElementById('count');
@@ -863,6 +889,7 @@
   const shuffleBtn = document.getElementById('shuffleBtn');
   const shareBtn = document.getElementById('shareBtn');
   const favViewBtn = document.getElementById('favViewBtn');
+  const favBtn = document.getElementById('favBtn');
   const favCountEl = document.getElementById('favCount');
   const toastEl = document.getElementById('toast');
 
@@ -906,28 +933,48 @@
 
   const isFave = (id) => faves.has(id);
 
+  // returns the new state: true = now saved, false = now unsaved, null = no joke
   function toggleFave(id) {
-    if (faves.has(id)) faves.delete(id);
-    else faves.add(id);
+    if (id == null) return null;
+    const nowOn = !faves.has(id);
+    if (nowOn) faves.add(id);
+    else faves.delete(id);
     if (!saveFaves()) toast("Couldn't save - storage is unavailable");
     syncFaveUI();
+    return nowOn;
   }
 
-  /* the star on the live note, and the footer count */
+  /* the footer heart (state of the current joke) and the saved count */
   function syncFaveUI() {
     favCountEl.hidden = faves.size === 0;
     favCountEl.textContent = String(faves.size);
 
-    const note = topNote();
     const joke = deck[index];
-    if (!note || !joke) return;
-    const on = isFave(joke.id);
-    note.classList.toggle('faved', on);
-    const btn = note.querySelector('.fav');
-    if (btn) {
-      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
-      btn.setAttribute('aria-label', on ? 'Remove from saved' : 'Save this joke');
-    }
+    const on = !!(joke && isFave(joke.id));
+    favBtn.disabled = !joke;
+    favBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    favBtn.setAttribute('aria-label', on ? 'Remove from saved' : 'Save this joke');
+
+    const note = topNote();
+    if (note) note.classList.toggle('faved', on);
+  }
+
+  /* toggle the current joke and, when it becomes saved, pop a heart on the note */
+  function heartCurrent() {
+    const joke = deck[index];
+    if (!joke) return;
+    const nowOn = toggleFave(joke.id);
+    if (nowOn) popHeart();
+  }
+
+  function popHeart() {
+    const el = topNote() && topNote().querySelector('.heart-pop');
+    if (!el) return;
+    el.classList.remove('go');
+    // reflow so re-adding the class restarts the animation
+    void el.offsetWidth;
+    el.classList.add('go');
+    el.addEventListener('animationend', () => el.classList.remove('go'), { once: true });
   }
 
   const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
@@ -973,13 +1020,6 @@
     el.dataset.tilt = String(tilt);
 
     el.innerHTML = `
-      <button class="fav" type="button"
-              aria-pressed="${isFave(joke.id) ? 'true' : 'false'}"
-              aria-label="${isFave(joke.id) ? 'Remove from saved' : 'Save this joke'}">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <polygon points="12 2.6 15 8.9 21.8 9.9 16.9 14.7 18.1 21.4 12 18.2 5.9 21.4 7.1 14.7 2.2 9.9 9 8.9" />
-        </svg>
-      </button>
       <span class="no">${position}</span>
       <p class="setup">${escapeHtml(joke.s)}</p>
       <div class="reveal">
@@ -989,6 +1029,9 @@
           <span class="flap-label">Tap to reveal</span>
         </button>
       </div>
+      <span class="heart-pop" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M12 20.3 4.6 12.9a4.6 4.6 0 0 1 6.5-6.5l.9.9.9-.9a4.6 4.6 0 0 1 6.5 6.5Z" /></svg>
+      </span>
     `;
     return el;
   }
@@ -1102,7 +1145,8 @@
     const tilt = Number(note.dataset.tilt) || 0;
     const flap = note.querySelector('.flap');
     let startX = 0, startY = 0, dx = 0, dy = 0;
-    let dragging = false, pointerId = null, axis = null, onFlap = false, onStar = false;
+    let dragging = false, pointerId = null, axis = null, onFlap = false;
+    let lastTapAt = 0;   // for double-tap detection, per live note
 
     const onDown = (e) => {
       pointerId = e.pointerId;
@@ -1111,9 +1155,6 @@
       dx = dy = 0;
       axis = null;
       onFlap = !!(flap && !isPeeled(note) && e.target.closest('.flap'));
-      // a press that starts on the star is a save, not a peel - let its own
-      // click handler deal with it and keep pointerup from also peeling
-      onStar = !!e.target.closest('.fav');
       dragging = true;
       note.classList.add('dragging');
       note.setPointerCapture(pointerId);
@@ -1162,14 +1203,20 @@
         return;
       }
 
-      // Never moved: a tap anywhere on the note reveals the punchline - except
-      // on the star, whose own click handler saves instead. The flap alone is
-      // a small target, and tapping the note and getting nothing just reads as
-      // broken. Handled here rather than in the click listener because pointer
-      // capture retargets the click to the note.
-      if (axis === null && !onStar) {
+      // Never moved: a tap. A second tap in quick succession is a double-tap,
+      // which saves the joke (like double-tapping a photo); a lone tap peels.
+      // Peel is handled here rather than in the click listener because pointer
+      // capture retargets the click away to the note.
+      if (axis === null) {
         suppressClick = true;
-        togglePeel(note);
+        const now = Date.now();
+        if (now - lastTapAt < DOUBLE_MS) {
+          lastTapAt = 0;          // consume, so a third quick tap starts fresh
+          heartCurrent();         // first tap already peeled; pop over it
+        } else {
+          lastTapAt = now;
+          togglePeel(note);
+        }
       }
     };
 
@@ -1266,18 +1313,12 @@
     setMode(mode === 'faves' ? 'all' : 'faves');
   });
 
+  // the footer heart lives outside the note, so a plain click reaches it -
+  // unlike the old in-note star, which pointer capture stole clicks from
+  favBtn.addEventListener('click', heartCurrent);
+
   stack.addEventListener('click', (e) => {
-    // the star toggles even mid-drag suppression - it's its own target
-    const favBtn = e.target.closest('.fav');
-    if (favBtn) {
-      const note = favBtn.closest('.note');
-      const joke = deck[index];
-      if (note && note.classList.contains('live') && joke) toggleFave(joke.id);
-      return;
-    }
-
-    if (suppressClick) { suppressClick = false; return; }
-
+    // a message-note button (Shuffle / Back) - always live, never a drag
     const actionBtn = e.target.closest('[data-action]');
     if (actionBtn) {
       const act = actionBtn.getAttribute('data-action');
@@ -1285,6 +1326,8 @@
       else if (act === 'back') setMode('all');
       return;
     }
+
+    if (suppressClick) { suppressClick = false; return; }
 
     const flap = e.target.closest('.flap');
     if (flap) {

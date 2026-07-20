@@ -12,8 +12,8 @@ is forward.
 The punchline hides under a flap. Tap anywhere on the note to peel it open —
 or drag upward if you want to lift it by hand. Space bar works too.
 
-Tap the star to save a joke (or press `s`); the **Saved** button opens just
-your saved ones.
+Save a joke with the heart button, a double-tap on the note, or the `s` key;
+the **Saved** button opens just your saved ones.
 
 Everything ships in `index.html` — markup, styles, script, and the jokes
 themselves. No build step, no dependencies, no network calls.
@@ -101,12 +101,12 @@ otherwise.
 Already set up: GitHub Pages serves `main` from the repo root, so **pushing to
 `main` deploys**. It takes a minute or two to go live.
 
-**Bump `CACHE` in `sw.js` before every push** (`dadjokes-v14`, and so on).
+**Bump `CACHE` in `sw.js` before every push** (`dadjokes-v16`, and so on).
 The service worker serves cache-first, so without a bump your phone keeps
 serving the old files and it looks like the deploy silently failed.
 
 ```sh
-# edit sw.js: const CACHE = 'dadjokes-v14';
+# edit sw.js: const CACHE = 'dadjokes-v16';
 git commit -am "Whatever changed"
 git push
 ```
@@ -155,7 +155,13 @@ installing this.
 
 Saves live in `localStorage` under `dadjokes.faves.v1`, as an array of joke
 `id`s. No account, no server — nothing leaves the device. The **Saved** button
-filters the deck to those ids; the star on each note toggles membership.
+filters the deck to those ids.
+
+Three ways to save the current joke: the footer heart, a double-tap on the note
+(with a heart that pops), or `s`. The heart sits in the footer, outside the
+note, on purpose — an earlier in-note star didn't respond to clicks, because the
+note captures the pointer and the browser retargets the click away from a child
+control.
 
 The trade of staying account-free: saves don't sync to another device, and
 clearing site data clears them. On-device storage keeps the app a static site,
