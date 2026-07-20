@@ -171,6 +171,27 @@ Reads are defensive — a disabled or full `localStorage` (private mode, say)
 degrades to "saves don't persist" rather than breaking the app, and ids that
 no longer match a joke are ignored on load.
 
+First-time visitors get a one-off toast teaching the double-tap ("Double-tap a
+joke to save it"). It retires for good the moment anyone saves a joke, and is
+backfilled as already-seen for anyone who had saves before it existed, so it
+never nags a returning user.
+
+## About / support
+
+The "···" button in the header opens an About sheet: a one-line description,
+the joke credits (satisfying the MIT notice where people can actually see it),
+and an optional donation link.
+
+The donation link is off by default. Set `SUPPORT_URL` near the top of the
+script in `index.html` to your Ko-fi / GitHub Sponsors / Stripe link and the
+"Buy me a coffee" block appears; leave it `''` and the sheet just shows the
+description and credits. If you use a processor other than Ko-fi, update the
+"Handled by …" line in the About markup.
+
+It's a plain link out to a hosted payment page — no backend, no card data ever
+touches this app, so the static-site, offline-first model is unchanged. The
+donate control is a coffee cup, never a heart, so it isn't confused with save.
+
 ## Sharing
 
 The **Share** button uses the Web Share API where it exists (iOS, Android), so
