@@ -1280,10 +1280,31 @@
 
   const topNote = () => stack.querySelector('.note.live');
 
+  /* A "nowhere to go" shake, for when the deck has a single joke. Uses the
+     Web Animations API so each keyframe can keep the note's own tilt, and
+     reverts to the resting transform when it finishes. */
+  function jiggle(note, amp) {
+    if (!note) return;
+    const tilt = Number(note.dataset.tilt) || 0;
+    const base = `rotate(${tilt}deg)`;
+    note.style.transform = base;   // rest here once the shake is done
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const a = Math.max(-42, Math.min(42, amp));
+    note.animate([
+      { transform: `translateX(${a}px) ${base}` },
+      { transform: `translateX(${-a * 0.65}px) ${base}` },
+      { transform: `translateX(${a * 0.42}px) ${base}` },
+      { transform: `translateX(${-a * 0.25}px) ${base}` },
+      { transform: `translateX(${a * 0.12}px) ${base}` },
+      { transform: `translateX(0px) ${base}` },
+    ], { duration: 460, easing: 'ease-out' });
+  }
+
   /* dir: +1 forward, -1 back. The deck is circular, so back from the first
      joke wraps to the last and forward from the last wraps to the first. */
   function go(dir) {
     if (deck.length === 0) return;
+    if (deck.length === 1) { jiggle(topNote(), dir * 26); return; }  // nowhere to go
 
     const note = topNote();
     if (note) {
@@ -1362,11 +1383,16 @@
 
       if (axis === 'h') {
         suppressClick = true;
-        note.style.transform = `rotate(${tilt}deg)`;
-        if (Math.abs(dx) > SWIPE_MIN) {
+        const swiped = Math.abs(dx) > SWIPE_MIN;
+        if (swiped && deck.length > 1) {
           // swipe the note away to the left to advance, like turning a page;
           // the deck wraps, so back from the first joke goes to the last
           go(dx < 0 ? 1 : -1);
+        } else if (swiped && deck.length === 1) {
+          // only one joke: nowhere to swipe to, so shake it back from here
+          jiggle(note, dx * 0.4);
+        } else {
+          note.style.transform = `rotate(${tilt}deg)`;   // sub-threshold: snap back
         }
         return;
       }
