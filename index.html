@@ -572,10 +572,15 @@
 
   .jotd-overlay.show { opacity: 1; pointer-events: auto; }
 
-  /* the daily joke sits on a canary note, punchline already showing */
+  /* the daily joke sits on a canary note with the punchline under a flap.
+     inline-size (not size) so the reused flap's cqw units resolve against the
+     card's width while its height still grows with the joke. --paper feeds the
+     flap's paper colour. */
   .jotd-card {
     position: relative;
     width: min(100%, 360px);
+    container-type: inline-size;
+    --paper: #FBE94F;
     background: #FBE94F;
     color: var(--ink);
     border-radius: 4px;
@@ -632,28 +637,11 @@
   .jotd-close:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   .jotd-close svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; }
 
-  .jotd-setup {
-    position: relative;
-    z-index: 1;
-    margin: 0;
-    font-family: var(--hand);
-    font-size: 21px;
-    line-height: 1.32;
-    color: var(--ink);
-    opacity: 0.82;
-    text-wrap: balance;
-  }
-
-  .jotd-punch {
-    position: relative;
-    z-index: 1;
-    margin: 15px 0 0;
-    font-family: var(--hand);
-    font-size: 25px;
-    line-height: 1.26;
-    color: var(--ink);
-    text-wrap: balance;
-  }
+  /* keep the joke above the adhesive-strip gradient, like the note does */
+  .jotd-card > * { position: relative; z-index: 1; }
+  /* the reused .setup runs a touch bigger here than on the square note */
+  .jotd-card .setup { font-size: 6.4cqw; }
+  .jotd-card .punchline { font-size: 7.4cqw; }
 
   @media (prefers-reduced-motion: reduce) {
     .jotd-overlay, .jotd-card { transition-duration: 1ms; }
@@ -839,8 +827,13 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
       </button>
     </div>
-    <p class="jotd-setup" id="jotdSetup"></p>
-    <p class="jotd-punch" id="jotdPunch"></p>
+    <p class="setup" id="jotdSetup"></p>
+    <div class="reveal">
+      <p class="punchline" id="jotdPunch"></p>
+      <button class="flap" type="button" aria-expanded="false" aria-label="Reveal the punchline">
+        <span class="flap-label">Tap to reveal</span>
+      </button>
+    </div>
   </div>
 </div>
 
@@ -1202,6 +1195,7 @@
   const dailyBtn = document.getElementById('dailyBtn');
   const jotdOverlay = document.getElementById('jotdOverlay');
   const jotdClose = document.getElementById('jotdClose');
+  const jotdCard = jotdOverlay.querySelector('.jotd-card');
 
   let deck = [];
   let index = 0;
@@ -1647,6 +1641,7 @@
       'Joke of the day · ' + date.toLocaleDateString(undefined, { month: 'long', day: 'numeric' });
     document.getElementById('jotdSetup').textContent = joke.s;
     document.getElementById('jotdPunch').textContent = joke.p;
+    setPeel(jotdCard, 0, false);   // cover the punchline fresh each open
     jotdLastFocus = document.activeElement;
     jotdOverlay.classList.add('show');
     jotdClose.focus();
@@ -1816,6 +1811,11 @@
   jotdClose.addEventListener('click', closeJotd);
   jotdOverlay.addEventListener('click', (e) => {
     if (e.target === jotdOverlay) closeJotd();      // tap the scrim, not the card
+  });
+  jotdCard.addEventListener('click', (e) => {
+    // tap anywhere on the card (but the close button) peels/re-covers the joke
+    if (e.target.closest('.jotd-close')) return;
+    togglePeel(jotdCard);
   });
 
   stack.addEventListener('click', (e) => {
