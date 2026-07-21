@@ -5,9 +5,9 @@ A stack of dad jokes on sticky notes, installable to a phone home screen.
 **https://dadjokes.wtf** — see [Installing on a phone](#installing-on-a-phone).
 
 Swipe the note away to the left for the next joke, right to go back - the
-note leaves the way you flick it, like turning a page. On desktop the arrows
-either side of the note and the arrow keys point the way you'd expect: right
-is forward.
+note leaves the way you flick it, like turning a page. The deck loops, so
+going back from the first joke wraps to the last. On desktop the arrows either
+side of the note and the arrow keys point the way you'd expect: right is forward.
 
 The punchline hides under a flap. Tap anywhere on the note to peel it open —
 or drag upward if you want to lift it by hand. Space bar works too.
@@ -146,13 +146,6 @@ family-friendly. `tools/curate_jokes.py` does the filtering and prints
 candidates; `tools/merge_jokes.py` takes a hand-picked list of indices and
 rewrites the `JOKES` block. Filtering alone isn't enough — the final pick was
 made by reading all 333 survivors.
-
-**ids 286–411** are classic dad jokes in wide circulation, compiled and curated
-for this project (the same folk-humor approach as ids 1–50) after a survey found
-no other sizeable, permissively-licensed set — most public dad-joke repos are
-either copies of official_joke_api or unlicensed icanhazdadjoke clients. Each
-was hand-checked and deduped against the existing set on both setup and
-punchline, so no gag repeats.
 
 They're bundled into `index.html` rather than fetched at runtime, because a
 network call would break offline support, which is most of the point of

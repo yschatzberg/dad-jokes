@@ -137,14 +137,6 @@
     text-transform: uppercase;
   }
 
-  .count {
-    margin-left: auto;
-    font-size: 11px;
-    letter-spacing: 0.12em;
-    color: var(--chrome-muted);
-    font-variant-numeric: tabular-nums;
-  }
-
   /* ---------- stage: arrow, stack, arrow ---------- */
 
   .stage {
@@ -339,19 +331,6 @@
   .note.xlong .setup { font-size: 5.1cqw; line-height: 1.3; }
   .note.xlong .punchline { font-size: 5.9cqw; }
   .note.xlong .reveal { margin-top: 3.5cqw; min-height: 18cqw; }
-
-  .note .no {
-    position: absolute;
-    top: 12px;
-    right: 16px;
-    font-family: var(--ui);
-    font-size: 10px;
-    letter-spacing: 0.12em;
-    color: var(--ink);
-    opacity: 0.36;
-    font-variant-numeric: tabular-nums;
-    z-index: 4;
-  }
 
   /* ---------- double-tap heart, popped onto the note ---------- */
 
@@ -682,7 +661,6 @@
       <circle cx="5" cy="12" r="1.7" /><circle cx="12" cy="12" r="1.7" /><circle cx="19" cy="12" r="1.7" />
     </svg>
   </button>
-  <span class="count" id="count"></span>
 </header>
 
 <div class="stage">
@@ -1040,133 +1018,7 @@
     { id: 282, s: "How many hipsters does it take to change a lightbulb?", p: "Oh, it's a really obscure number. You've probably never heard of it." },
     { id: 283, s: "What do you call a crowd of chess players bragging about their wins in a hotel lobby?", p: "Chess nuts boasting in an open foyer." },
     { id: 284, s: "While I was sleeping my friends decided to write math equations on me.", p: "You should have seen the expression on my face when I woke up." },
-    { id: 285, s: "Why does it take longer to get from 1st to 2nd base, than it does to get from 2nd to 3rd base?", p: "Because there's a Shortstop in between!" },
-    { id: 286, s: "I used to be addicted to soap.", p: "But I'm clean now." },
-    { id: 287, s: "I only seem to catch colds in the winter.", p: "I guess I need to change my filter." },
-    { id: 288, s: "What's the best way to watch a fly-fishing tournament?", p: "Live stream." },
-    { id: 289, s: "Why can't you trust an atom?", p: "They make up literally everything." },
-    { id: 290, s: "Why did the coffee taste like dirt?", p: "Because it was ground this morning." },
-    { id: 291, s: "What kind of shorts do clouds wear?", p: "Thunderwear." },
-    { id: 292, s: "Why was the broom late?", p: "It over-swept." },
-    { id: 293, s: "Why did the picture go to jail?", p: "It was framed." },
-    { id: 294, s: "What's a skeleton's least favorite room?", p: "The living room." },
-    { id: 295, s: "I don't trust people who do acupuncture.", p: "They're back stabbers." },
-    { id: 296, s: "Why do seagulls fly over the sea?", p: "If they flew over the bay, they'd be bagels." },
-    { id: 297, s: "What did the drummer name his twin daughters?", p: "Anna one, Anna two." },
-    { id: 298, s: "What do you call a fish wearing a bowtie?", p: "So-fish-ticated." },
-    { id: 299, s: "Why did the bee get married?", p: "Because he found his honey." },
-    { id: 300, s: "Why did the math teacher plant a tree?", p: "To grow square roots." },
-    { id: 301, s: "What do you call cheese that's sad?", p: "Blue cheese." },
-    { id: 302, s: "Why did the banana see a doctor?", p: "It wasn't peeling well." },
-    { id: 303, s: "What's a computer's favorite beat?", p: "An algo-rhythm." },
-    { id: 304, s: "What do you call a sleeping dinosaur?", p: "A dino-snore." },
-    { id: 305, s: "Why did the man put sugar under his pillow?", p: "He wanted sweet dreams." },
-    { id: 306, s: "What do you call a can opener that doesn't work?", p: "A can't opener." },
-    { id: 307, s: "Why did the melon jump in the lake?", p: "It wanted to be a watermelon." },
-    { id: 308, s: "What do you call a nervous knife?", p: "A little on edge." },
-    { id: 309, s: "Why do cows wear bells?", p: "Because their horns don't work." },
-    { id: 310, s: "What do you call a dinosaur that crashes his car?", p: "Tyrannosaurus wrecks." },
-    { id: 311, s: "Why did the student eat his homework?", p: "The teacher said it was a piece of cake." },
-    { id: 312, s: "What do you call a fake stone in Ireland?", p: "A sham-rock." },
-    { id: 313, s: "What do you call a lazy kangaroo?", p: "A pouch potato." },
-    { id: 314, s: "What kind of car does an egg drive?", p: "A yolkswagen." },
-    { id: 315, s: "Why did the gym close down?", p: "It just didn't work out." },
-    { id: 316, s: "What do you get from a pampered cow?", p: "Spoiled milk." },
-    { id: 317, s: "Why did the pancake feel flat?", p: "It had a rough batter day." },
-    { id: 318, s: "What do you call two monkeys sharing an account?", p: "Bromates." },
-    { id: 319, s: "Why did the clock go to therapy?", p: "It had too much time on its hands." },
-    { id: 320, s: "What did the shark say after eating a clownfish?", p: "That tasted funny." },
-    { id: 321, s: "What did the nut say when it sneezed?", p: "Cashew." },
-    { id: 322, s: "Why did the dog sit in the shade?", p: "He didn't want to be a hot dog." },
-    { id: 323, s: "What do you call a magician who lost his magic?", p: "Ian." },
-    { id: 324, s: "Why was the math lecture so long?", p: "The teacher went on a tangent." },
-    { id: 325, s: "What do you call a train that eats too much?", p: "A chew-chew train." },
-    { id: 326, s: "What did the wall say to the ceiling?", p: "Hang in there." },
-    { id: 327, s: "Why did the strawberry cry?", p: "It was in a jam." },
-    { id: 328, s: "What do you call a boat full of smart people?", p: "A scholarship." },
-    { id: 329, s: "Why did the phone wear glasses?", p: "It lost its contacts." },
-    { id: 330, s: "Why did the tree go to the barber?", p: "It needed a trim." },
-    { id: 331, s: "What do you call a bear caught in the rain?", p: "A drizzly bear." },
-    { id: 332, s: "Why did the bread go to therapy?", p: "It had a lot on its plate." },
-    { id: 333, s: "Why did the chicken join a band?", p: "It had the drumsticks." },
-    { id: 334, s: "What do you call a snowman in July?", p: "A puddle." },
-    { id: 335, s: "Why did the lamp bow?", p: "It wanted to be a little lighter." },
-    { id: 336, s: "What did one candle say to the other?", p: "You're getting on my wick." },
-    { id: 337, s: "Why did the spider join the computer team?", p: "It was great with websites." },
-    { id: 338, s: "Why did the man quit his job at the calendar factory?", p: "He took a couple days off." },
-    { id: 339, s: "What do you call a deer with no eyes?", p: "No idea." },
-    { id: 340, s: "What did the finger say to the thumb?", p: "You're the one I really dig." },
-    { id: 341, s: "Why did the raisin go out with the prune?", p: "It couldn't find a date." },
-    { id: 342, s: "What do you call a monkey that loves chips?", p: "A chipmunk." },
-    { id: 343, s: "Why did the runner carry a watch?", p: "He wanted to make good time." },
-    { id: 344, s: "Why did the toilet paper roll down the hill?", p: "To get to the bottom." },
-    { id: 345, s: "What do you call a boomeranging complaint?", p: "Feedback." },
-    { id: 346, s: "Why did the ghost go to the party?", p: "For the boos." },
-    { id: 347, s: "What do you call a rabbit with fleas?", p: "Bugs Bunny." },
-    { id: 348, s: "Why did the log float away?", p: "It couldn't keep it together." },
-    { id: 349, s: "What did the lawyer name his daughter?", p: "Sue." },
-    { id: 350, s: "Why did the pencil get an award?", p: "It was a sharp performer." },
-    { id: 351, s: "What do you call a bug that can't sit still?", p: "A jitterbug." },
-    { id: 352, s: "Why did the cabbage win the race?", p: "It was a head." },
-    { id: 353, s: "Why did the cheese refuse to move?", p: "It was set in its whey." },
-    { id: 354, s: "What do you call a shoe made of a banana?", p: "A slipper." },
-    { id: 355, s: "Why did the printer break up with the paper?", p: "It felt used." },
-    { id: 356, s: "What did the ceiling say to the chandelier?", p: "You light up my life." },
-    { id: 357, s: "Why did the swimmer stop swimming?", p: "The current situation." },
-    { id: 358, s: "What do you call a boat that sinks over and over?", p: "A wreck-liner." },
-    { id: 359, s: "Why did the pig become a comedian?", p: "He was a total ham." },
-    { id: 360, s: "What do you call a herd of sheep tumbling downhill?", p: "A lambslide." },
-    { id: 361, s: "Why did the light bulb fail school?", p: "It wasn't too bright." },
-    { id: 362, s: "Why did the astronaut break up with his girlfriend?", p: "He needed space." },
-    { id: 363, s: "What do you call a crab that plays baseball?", p: "A pinch hitter." },
-    { id: 364, s: "Why did the whiteboard smile?", p: "Everything about it was remarkable." },
-    { id: 365, s: "What do you call a fish with no eyes?", p: "A fsh." },
-    { id: 366, s: "Why did the tailor get promoted?", p: "He was a cut above." },
-    { id: 367, s: "What did the volcano say to its love?", p: "I lava you." },
-    { id: 368, s: "Why did the librarian slip?", p: "She was in the non-friction section." },
-    { id: 369, s: "What did the salt say to the pepper?", p: "You spice up my life." },
-    { id: 370, s: "Why did the yardstick sit down?", p: "It was three feet tired." },
-    { id: 371, s: "Why did the marathon runner bring string?", p: "To tie up loose ends." },
-    { id: 372, s: "Why did the egg hide?", p: "It was a little chicken." },
-    { id: 373, s: "What do you call a boomer that loves gardening?", p: "A planter." },
-    { id: 374, s: "Why did the potato blush?", p: "It saw the steak sauce." },
-    { id: 375, s: "What do you call a snake that builds things?", p: "A boa constructor." },
-    { id: 376, s: "Why did the moon skip dinner?", p: "It was already full." },
-    { id: 377, s: "What did the paper say to the pencil?", p: "Write on." },
-    { id: 378, s: "Why did the sock go to the party alone?", p: "It lost its pair." },
-    { id: 379, s: "Why did the toast go to school?", p: "To get a little brighter." },
-    { id: 380, s: "What do you call a cold dog?", p: "A chili dog." },
-    { id: 381, s: "Why did the guitar go to the doctor?", p: "It had too much treble." },
-    { id: 382, s: "What did the roof say to the wall?", p: "I've got you covered." },
-    { id: 383, s: "What do you call an angry carrot?", p: "A steamed veggie." },
-    { id: 384, s: "Why did the ladder get promoted?", p: "It was always moving up." },
-    { id: 385, s: "What did the ghost order at the diner?", p: "Ice scream." },
-    { id: 386, s: "What did the tree wear to the pool party?", p: "Swimming trunks." },
-    { id: 387, s: "Why did the computer go to the doctor?", p: "It had a virus." },
-    { id: 388, s: "What do you call a happy cowboy?", p: "A jolly rancher." },
-    { id: 389, s: "Why did the vegetable band sound so good?", p: "It had a great beet." },
-    { id: 390, s: "What do you call a cow on a trampoline?", p: "A milkshake." },
-    { id: 391, s: "Why did the cat sit on the computer?", p: "To keep an eye on the mouse." },
-    { id: 392, s: "What do you call a snowman with a six-pack?", p: "An abdominal snowman." },
-    { id: 393, s: "What do you call a dog that can tell time?", p: "A watchdog." },
-    { id: 394, s: "Why did the teddy bear skip dessert?", p: "It was already stuffed." },
-    { id: 395, s: "What did the hamburger name its baby?", p: "Patty." },
-    { id: 396, s: "What do you call a duck that steals?", p: "A robber ducky." },
-    { id: 397, s: "Why did the music teacher bring a ladder?", p: "To reach the high notes." },
-    { id: 398, s: "Why did the robot go on vacation?", p: "It needed to recharge." },
-    { id: 399, s: "Why did the dog cross the playground?", p: "To get to the barking lot." },
-    { id: 400, s: "What do you call a fake dad?", p: "A faux pa." },
-    { id: 401, s: "Why did the tree get in trouble?", p: "It was being knotty." },
-    { id: 402, s: "What do you call a dinosaur in a cowboy hat?", p: "Tyrannosaurus Tex." },
-    { id: 403, s: "Why did the pepper put on a jacket?", p: "It got a little chilly." },
-    { id: 404, s: "What do you call a duck that loves fireworks?", p: "A firequacker." },
-    { id: 405, s: "Why did the man put his money in the blender?", p: "He wanted liquid assets." },
-    { id: 406, s: "What do you call a sleepy bull?", p: "A bulldozer." },
-    { id: 407, s: "Why did the pirate go to school?", p: "To improve his arrr-ticulation." },
-    { id: 408, s: "What do you call a cold puppy?", p: "A pup-sicle." },
-    { id: 409, s: "What do you call a bear with no socks?", p: "Bare-foot." },
-    { id: 410, s: "Why did the baker go to the bank?", p: "He kneaded some dough." },
-    { id: 411, s: "What do you call a fish that needs help singing?", p: "Auto-tuna." }
+    { id: 285, s: "Why does it take longer to get from 1st to 2nd base, than it does to get from 2nd to 3rd base?", p: "Because there's a Shortstop in between!" }
   ];
 
   /* Sticky-note stock, cycled by position so no two neighbours match. */
@@ -1188,7 +1040,6 @@
   const SUPPORT_URL = 'https://github.com/sponsors/yschatzberg';
 
   const stack = document.getElementById('stack');
-  const countEl = document.getElementById('count');
   const prevBtn = document.getElementById('prevBtn');
   const nextBtn = document.getElementById('nextBtn');
   const shuffleBtn = document.getElementById('shuffleBtn');
@@ -1349,7 +1200,6 @@
     el.dataset.tilt = String(tilt);
 
     el.innerHTML = `
-      <span class="no">${position}</span>
       <p class="setup">${escapeHtml(joke.s)}</p>
       <div class="reveal">
         <p class="punchline">${escapeHtml(joke.p)}</p>
@@ -1409,41 +1259,31 @@
       // only reachable in the saved view with nothing saved yet
       stack.appendChild(buildMessageNote(
         'No saved jokes yet.',
-        'Tap the star on a joke to save it here.',
+        'Tap the heart on a joke to save it here.',
         { act: 'back', label: 'Back to all jokes' }));
-      countEl.textContent = 'Saved';
-    } else if (index >= deck.length) {
-      stack.appendChild(buildMessageNote(
-        mode === 'faves' ? "That's all your saved jokes." : "That's the whole stack.",
-        null,
-        mode === 'faves'
-          ? { act: 'back', label: 'Back to all jokes' }
-          : { act: 'shuffle', label: 'Shuffle' }));
-      countEl.textContent = mode === 'faves' ? 'Saved' : 'All out';
     } else {
-      for (let depth = 2; depth >= 0; depth--) {
-        const i = index + depth;
-        if (i >= deck.length) continue;
+      // the deck loops, so the notes behind wrap back to the start
+      const shown = Math.min(3, deck.length);
+      for (let depth = shown - 1; depth >= 0; depth--) {
+        const i = (index + depth) % deck.length;
         stack.appendChild(buildNote(deck[i], depth, i + 1));
       }
-      const label = mode === 'faves' ? 'Saved ' : '';
-      countEl.textContent = `${label}${index + 1} / ${deck.length}`;
       attachDrag(stack.querySelector('.note.live'));
     }
 
-    prevBtn.disabled = index <= 0;
-    nextBtn.disabled = index >= deck.length;
-    shareBtn.disabled = index >= deck.length;
+    const empty = deck.length === 0;
+    prevBtn.disabled = empty;
+    nextBtn.disabled = empty;
+    shareBtn.disabled = empty;
     syncFaveUI();
   }
 
   const topNote = () => stack.querySelector('.note.live');
 
-  /* dir: +1 forward, -1 back. The note exits the way you sent it, and the
-     note for the new index is revealed underneath. */
+  /* dir: +1 forward, -1 back. The deck is circular, so back from the first
+     joke wraps to the last and forward from the last wraps to the first. */
   function go(dir) {
-    const target = index + dir;
-    if (target < 0 || target > deck.length) return;
+    if (deck.length === 0) return;
 
     const note = topNote();
     if (note) {
@@ -1460,7 +1300,7 @@
       setTimeout(() => note.remove(), 400);
     }
 
-    index = target;
+    index = (index + dir + deck.length) % deck.length;
     render();
   }
 
@@ -1501,10 +1341,9 @@
       }
 
       if (axis === 'h') {
-        // there's nothing before the first note, so dragging back just resists
-        const damped = (dx > 0 && index === 0) ? dx * 0.25 : dx;
+        // the deck loops, so a drag in either direction tracks the finger freely
         note.style.transform =
-          `translate(${damped}px, ${dy * 0.35}px) rotate(${tilt + damped * 0.055}deg)`;
+          `translate(${dx}px, ${dy * 0.35}px) rotate(${tilt + dx * 0.055}deg)`;
       } else if (axis === 'v') {
         setPeel(note, clamp(-dy / PEEL_TRAVEL, 0, 1), false);
       }
@@ -1525,9 +1364,9 @@
         suppressClick = true;
         note.style.transform = `rotate(${tilt}deg)`;
         if (Math.abs(dx) > SWIPE_MIN) {
-          // swipe the note away to the left to advance, like turning a page
-          const dir = dx < 0 ? 1 : -1;
-          if (!(dir === -1 && index === 0)) go(dir);
+          // swipe the note away to the left to advance, like turning a page;
+          // the deck wraps, so back from the first joke goes to the last
+          go(dx < 0 ? 1 : -1);
         }
         return;
       }
