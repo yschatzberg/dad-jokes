@@ -147,6 +147,13 @@ candidates; `tools/merge_jokes.py` takes a hand-picked list of indices and
 rewrites the `JOKES` block. Filtering alone isn't enough — the final pick was
 made by reading all 333 survivors.
 
+**ids 286–411** are classic dad jokes in wide circulation, compiled and curated
+for this project (the same folk-humor approach as ids 1–50) after a survey found
+no other sizeable, permissively-licensed set — most public dad-joke repos are
+either copies of official_joke_api or unlicensed icanhazdadjoke clients. Each
+was hand-checked and deduped against the existing set on both setup and
+punchline, so no gag repeats.
+
 They're bundled into `index.html` rather than fetched at runtime, because a
 network call would break offline support, which is most of the point of
 installing this.
